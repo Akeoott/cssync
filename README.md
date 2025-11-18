@@ -1,10 +1,12 @@
-# CS-Sync
-Cloud Storage Sync
+# cssync
 
-Written in C# for the UI and Python for the CLI,<br>
-aimed for cross platform access on various cloud storage platforms.
+| c     | s       | sync |
+|:-----:|:-------:|:----:|
+| Cloud | Storage | Sync |
 
-| CS-Sync-CLI                               | CS-Sync-UI                        |
-|:-----------------------------------------:|:---------------------------------:|
-| Cloud Storage Sync Command Line Interface | Cloud Storage Sync User Interface |
-| In development                            | Planned development               |
+Written in C# for performance and safety,<br>
+aiming at cross platform compatibility for various cloud storage services using rclone.
+
+| cssync_backend | cssync_cli or cssync_gui |
+|:--------------:|:------------------------:|
+| Handles logic  | Handle user input        |
