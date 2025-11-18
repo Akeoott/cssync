@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cs-sync-cli"
+version = "0.1.0"
+description = "Cloud Storage Sync written in Python providing CLI access cross platform. Required by the UI version of this program."
+readme = {file = "README.md", content-type = "text/markdown"}
+authors = [
+    {name = "Akeoott", email = "ame@akeoot.org"}
+]
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+keywords = ["cloud-storage", "sync", "cli", "cross-platform"]
+dependencies = [
+    "loguru==0.7.3",
+]
+
+classifiers = [
+    "Private :: Do Not Upload",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Natural Language :: English",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Topic :: Utilities",
+    "Topic :: System :: Archiving :: Backup",
+]
+
+[project.urls]
+Homepage = "https://github.com/Akeoott/CS-Sync"
+Repository = "https://github.com/Akeoott/CS-Sync"
+Issues = "https://github.com/Akeoott/CS-Sync/issues"
+Documentation = "https://github.com/Akeoott/CS-Sync#readme"

@@ -4,21 +4,29 @@
 import platform
 import sys
 
+from helper.logConfig import logger
+
+
+class main:
+    # Will contain future functionality
+    pass
+
 
 if __name__ == "__main__":
     os: str = platform.system()
     release: str = platform.release()
 
     if os == "Linux":
-        print(f"Linux({os}): {release}")
+        logger.info(f"{os}: {release}")
+        logger.warning(f"{os} support is WIP!")
 
     elif os == "Windows":
-        print(f"Windows({os}): {release}")
-        print(f"Windows({os}) is not yet supported!")
+        logger.info(f"{os}: {release}")
+        logger.warning(f"{os} is not yet supported!")
 
     elif os == "Darwin":
-        print(f"MacOS({os}): {release}")
-        print(f"MacOS({os}) is not yet supported!")
+        logger.info(f"{os}: {release}")
+        logger.warning(f"{os} is not yet supported!")
 
     else:
-        print(f"I couldn't recognize your OS. Sorry!\n{os}: {release}")
+        logger.error(f"I couldn't recognize your OS. Sorry! {os}: {release}")
