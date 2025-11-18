@@ -4,6 +4,9 @@
 |:-----:|:-------:|:----:|
 | Cloud | Storage | Sync |
 
+> [!WARNING]
+> This project is WIP
+
 Written in C# for performance and safety,<br>
 aiming for cross platform compatibility for various cloud storage services using rclone.
 
