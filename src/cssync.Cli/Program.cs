@@ -22,7 +22,6 @@ internal class MainCli
             response = await rc.RunRclone(input);
             Console.WriteLine(response);
         }
-
     }
 }
 
