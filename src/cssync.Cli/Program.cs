@@ -14,10 +14,12 @@ internal class MainCli
         string response;
         string input;
 
+        Console.WriteLine("Enter a command");
+
         while (true)
         {
-            input = GetInput.GetString("Enter a command: ");
-            response = await rc.ExecuteCommand("--help");
+            input = GetInput.GetString("> rclone ");
+            response = await rc.RunRclone(input);
             Console.WriteLine(response);
         }
 

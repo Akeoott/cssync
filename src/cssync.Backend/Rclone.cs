@@ -2,27 +2,56 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace cssync.Backend;
 
 public class Rclone
 {
-    public async Task<string> ExecuteCommand(string arguments)
+    public async Task<string> RunRclone(params string[] commands)
     {
-        var processStartInfo = new ProcessStartInfo
+        if (commands == null || commands.Length == 0)
         {
-            FileName = "rclone",
-            Arguments = arguments,
+            return "Error: No commands provided.";
+        }
+
+        var results = new List<string>();
+
+        foreach (var command in commands)
+        {
+            var result = await ExecCommand(command.Trim());
+            results.Add(result);
+        }
+
+        return string.Join("\n", results);
+    }
+
+    private async Task<string> ExecCommand(string commandArgs)
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = GetExecutableName(),
+            Arguments = commandArgs,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true
         };
 
-        using var process = new Process();
-        process.StartInfo = processStartInfo;
+        using var process = new Process { StartInfo = psi };
 
-        process.Start();
+        try
+        {
+            process.Start();
+        }
+        catch (Win32Exception ex) when (ex.NativeErrorCode == 2)
+        {
+            return "Error: rclone not found. Make sure it is installed and in your PATH.";
+        }
+        catch (Exception ex)
+        {
+            return $"Error starting rclone: {ex.Message}";
+        }
 
         string output = await process.StandardOutput.ReadToEndAsync();
         string error = await process.StandardError.ReadToEndAsync();
@@ -31,9 +60,16 @@ public class Rclone
 
         if (process.ExitCode != 0)
         {
-            throw new Exception($"Rclone failed: {error}");
+            return !string.IsNullOrWhiteSpace(error)
+                ? error
+                : $"Command failed with exit code {process.ExitCode}";
         }
 
         return output;
+    }
+
+    private string GetExecutableName()
+    {
+        return OperatingSystem.IsWindows() ? "rclone.exe" : "rclone";
     }
 }
