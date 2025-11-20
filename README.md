@@ -22,7 +22,7 @@
 Written in C# for performance and safety,<br>
 aiming for cross platform compatibility for various cloud storage services using rclone.
 
-| cssync_backend | cssync_cli / cssync_gui |
+| cssync.Backend | cssync.Cli / cssync.Gui |
 |:--------------:|:-----------------------:|
 | Handles logic  | Handle user input       |
 
