@@ -6,6 +6,12 @@ using System.ComponentModel;
 
 namespace cssync.Backend;
 
+/// <summary>
+/// Allows indirect interactions with rclone by passing in variables.
+/// </summary>
+/// <returns>
+/// A string containing the output of rclone.
+/// </returns>
 public class Rclone
 {
     public async Task<string> RunRclone(params string[] commands)
