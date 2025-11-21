@@ -5,17 +5,13 @@ namespace cssync.Cli;
 
 internal static class Constants
 {
-    internal const string invalidOption =
-        "Enter a valid command (enter 'help' to list all commands). ";
-
     internal const string unavailableOption =
-        "This operation is not available.\nIt may not have be integrated yet.";
+        "This operation is not available.\nIt may not have been integrated yet.";
 
     internal const string mainOptions =
-        "Enter a command\n" +
-        "> help   (h)  |  See all options\n" +
-        "> quit   (q)  |  Quit program\n" +
-        "> rclone (r)  |  Interact directly with rclone\n" +
-        "> cssync (c)  |  Interact with cssync";
-
+        "Available commands:\n" +
+        "\t> help    |  See all options\n" +
+        "\t> exit    |  Exit program\n" +
+        "\t> rclone  |  Interact directly with rclone\n" +
+        "\t> cssync  |  Interact with cssync";
 }

@@ -15,47 +15,58 @@ internal class MainCli
     internal static async Task Run()
     {
         string input;
-        string response;
 
         Console.WriteLine(Constants.mainOptions);
 
         while (true)
         {
             input = GetInput.GetString("\n~\n> ").ToLower();
-            response = "";
 
             switch (input)
             {
-                case "quit" or "q":
+                case "exit":
                     return;
 
-                case "rclone" or "r":
-                    response = await InitRclone();
+                case "rclone":
+                    await InitRclone();
                     break;
 
-                case "cssync" or "c":
-                    response = await InitCssync();
-                    break;
-
-                case "help" or "h":
-                    Console.WriteLine(Constants.mainOptions);
+                case "cssync":
+                    await InitCssync();
                     break;
 
                 default:
-                    Console.WriteLine(Constants.invalidOption);
+                    Console.WriteLine(Constants.mainOptions);
                     break;
             }
-            Console.WriteLine(response);
         }
     }
 
-    internal static async Task<string> InitRclone()
+    internal static async Task InitRclone()
     {
-        return Constants.unavailableOption;
+        var rc = new Rclone();
+        string input;
+        string response;
+
+        while (true)
+        {
+            Console.WriteLine("Enter 'return' to go back");
+            input = GetInput.GetString("\n~\n> rclone ").ToLower();
+
+            if (input == "return")
+            {
+                return;
+            }
+            else
+            {
+                response = await rc.RunRclone(input);
+                Console.WriteLine(response);
+            }
+        }
     }
 
-    internal static async Task<string> InitCssync()
+    internal static async Task InitCssync()
     {
-        return Constants.unavailableOption;
+        Console.WriteLine(Constants.unavailableOption);
     }
 }
