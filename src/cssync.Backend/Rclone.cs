@@ -7,8 +7,15 @@ using System.Text;
 
 namespace cssync.Backend;
 
+/// <summary>
+/// Handles execution of rclone commands with support for both interactive and non-interactive modes.
+/// </summary>
 public class Rclone
 {
+    /// <summary>
+    /// Executes one or more rclone commands and returns their combined output.
+    /// </summary>
+    /// <param name="commands">The rclone commands to execute.</param>
     public async Task<string> RunRclone(params string[] commands)
     {
         if (commands == null || commands.Length == 0)
@@ -27,6 +34,9 @@ public class Rclone
     }
 
     #region INTERACTIVE
+    /// <summary>
+    /// Executes an interactive rclone command that requires user input.
+    /// </summary>
     private async Task<string> ExecInteractiveCommand(string commandArgs)
     {
         var psi = CreateProcessStartInfo(commandArgs, interactive: true);
@@ -42,6 +52,9 @@ public class Rclone
     #endregion
 
     #region NON-INTERACTIVE
+    /// <summary>
+    /// Executes a non-interactive rclone command and captures its output.
+    /// </summary>
     private async Task<string> ExecNonInteractiveCommand(string commandArgs)
     {
         var psi = CreateProcessStartInfo(commandArgs, interactive: false);
@@ -80,6 +93,9 @@ public class Rclone
         };
     }
 
+    /// <summary>
+    /// Attempts to start the rclone process with error handling.
+    /// </summary>
     private bool TryStartProcess(Process process, out string error)
     {
         try
@@ -110,6 +126,9 @@ public class Rclone
         }
     }
 
+    /// <summary>
+    /// Determines if a command requires interactive mode (config, authorize, setup).
+    /// </summary>
     private bool IsInteractiveCommand(string command)
     {
         var first = command.Split(' ')[0].ToLowerInvariant();
