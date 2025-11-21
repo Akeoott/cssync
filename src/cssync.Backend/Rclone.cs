@@ -37,7 +37,7 @@ public class Rclone
     /// <summary>
     /// Executes an interactive rclone command that requires user input.
     /// </summary>
-    private async Task<string> ExecInteractiveCommand(string commandArgs)
+    private static async Task<string> ExecInteractiveCommand(string commandArgs)
     {
         var psi = CreateProcessStartInfo(commandArgs, interactive: true);
 
@@ -55,7 +55,7 @@ public class Rclone
     /// <summary>
     /// Executes a non-interactive rclone command and captures its output.
     /// </summary>
-    private async Task<string> ExecNonInteractiveCommand(string commandArgs)
+    private static async Task<string> ExecNonInteractiveCommand(string commandArgs)
     {
         var psi = CreateProcessStartInfo(commandArgs, interactive: false);
 
@@ -80,7 +80,7 @@ public class Rclone
     #endregion
 
     #region UTILITIES
-    private ProcessStartInfo CreateProcessStartInfo(string args, bool interactive)
+    private static ProcessStartInfo CreateProcessStartInfo(string args, bool interactive)
     {
         return new ProcessStartInfo
         {
@@ -96,7 +96,7 @@ public class Rclone
     /// <summary>
     /// Attempts to start the rclone process with error handling.
     /// </summary>
-    private bool TryStartProcess(Process process, out string error)
+    private static bool TryStartProcess(Process process, out string error)
     {
         try
         {
@@ -116,7 +116,7 @@ public class Rclone
         }
     }
 
-    private async Task ReadStreamLineByLine(StreamReader reader, StringBuilder buffer, Action<string> onLine)
+    private static async Task ReadStreamLineByLine(StreamReader reader, StringBuilder buffer, Action<string> onLine)
     {
         string? line;
         while ((line = await reader.ReadLineAsync()) != null)
@@ -129,13 +129,13 @@ public class Rclone
     /// <summary>
     /// Determines if a command requires interactive mode (config, authorize, setup).
     /// </summary>
-    private bool IsInteractiveCommand(string command)
+    private static bool IsInteractiveCommand(string command)
     {
         var first = command.Split(' ')[0].ToLowerInvariant();
         return first is "config" or "authorize" or "setup";
     }
 
-    private string GetExecutableName()
+    private static string GetExecutableName()
     {
         return OperatingSystem.IsWindows() ? "rclone.exe" : "rclone";
     }
