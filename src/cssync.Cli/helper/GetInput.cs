@@ -19,28 +19,6 @@ internal static class GetInput
                 Console.WriteLine("Please enter a non-empty value.");
             }
         } while (string.IsNullOrWhiteSpace(value));
-        return value;
-    }
-
-    internal static float GetFloat(string prompt)
-    {
-        while (true)
-        {
-            Console.Write(prompt);
-            if (float.TryParse(Console.ReadLine(), out float value))
-                return value;
-            Console.WriteLine("Invalid number, try again.");
-        }
-    }
-
-    internal static int GetInt(string prompt)
-    {
-        while (true)
-        {
-            Console.Write(prompt);
-            if (int.TryParse(Console.ReadLine(), out int value))
-                return value;
-            Console.WriteLine("Invalid number, try again.");
-        }
+        return value.Trim();
     }
 }

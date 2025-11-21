@@ -9,19 +9,64 @@ internal class MainCli
 {
     internal static async Task Main(string[] args)
     {
-        var rc = new Rclone();
+        await Run();
+    }
 
-        string response;
+    internal static async Task Run()
+    {
         string input;
 
-        Console.WriteLine("Enter a command");
+        Console.WriteLine(Constants.mainOptions);
 
         while (true)
         {
-            input = GetInput.GetString("> rclone ");
-            response = await rc.RunRclone(input);
-            Console.WriteLine(response);
+            input = GetInput.GetString("\n~\n> ").ToLower();
+
+            switch (input)
+            {
+                case "exit":
+                    return;
+
+                case "rclone":
+                    await InitRclone();
+                    break;
+
+                case "cssync":
+                    await InitCssync();
+                    break;
+
+                default:
+                    Console.WriteLine(Constants.mainOptions);
+                    break;
+            }
         }
     }
-}
 
+    internal static async Task InitRclone()
+    {
+        var rc = new Rclone();
+        string input;
+        string response;
+
+        while (true)
+        {
+            Console.WriteLine("Enter 'return' to go back");
+            input = GetInput.GetString("\n~\n> rclone ").ToLower();
+
+            if (input == "return")
+            {
+                return;
+            }
+            else
+            {
+                response = await rc.RunRclone(input);
+                Console.WriteLine(response);
+            }
+        }
+    }
+
+    internal static async Task InitCssync()
+    {
+        Console.WriteLine(Constants.unavailableOption);
+    }
+}
