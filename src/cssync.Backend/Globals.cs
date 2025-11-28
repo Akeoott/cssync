@@ -4,7 +4,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace cssync.Cli;
+namespace cssync.Backend;
 
 internal static class Globals
 {
