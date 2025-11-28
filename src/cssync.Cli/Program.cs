@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using cssync.Backend;
+using Microsoft.Extensions.Logging;
 
 namespace cssync.Cli;
 
@@ -9,14 +10,27 @@ internal class MainCli
 {
     internal static async Task Main(string[] args)
     {
-        await Run();
+        Globals.logger.LogInformation("Initiated logging for CLI application.");
+
+        Console.WriteLine(
+            "\nMake sure rclone is configured. If not, do so.\n" +
+            "Use `rclone configure` to configure rclone.\n"
+        );
+
+        await InitBackend();
+        await RunCLI();
     }
 
-    internal static async Task Run()
+    internal static async Task InitBackend()
+    {
+        Globals.logger.LogWarning("Could not detect backend as this feature was not implemented yet.");
+    }
+
+    internal static async Task RunCLI()
     {
         string input;
 
-        Console.WriteLine(Constants.mainOptions);
+        Console.WriteLine(StringConst.mainOptions);
 
         while (true)
         {
@@ -36,7 +50,7 @@ internal class MainCli
                     break;
 
                 default:
-                    Console.WriteLine(Constants.mainOptions);
+                    Console.WriteLine(StringConst.mainOptions);
                     break;
             }
         }
@@ -67,6 +81,6 @@ internal class MainCli
 
     internal static async Task InitCssync()
     {
-        Console.WriteLine(Constants.unavailableOption);
+        Globals.logger.LogWarning(StringConst.unavailableOption);
     }
 }
