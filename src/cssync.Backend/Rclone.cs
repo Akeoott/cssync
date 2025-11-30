@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace cssync.Backend;
 
@@ -18,6 +19,8 @@ public class Rclone
     /// <param name="commands">The rclone commands to execute.</param>
     public async Task<string> RunRclone(params string[] commands)
     {
+        Globals.logger.LogInformation("Running rclone command");
+
         if (commands == null || commands.Length == 0)
             return "Error: No commands provided.";
 
@@ -39,6 +42,8 @@ public class Rclone
     /// </summary>
     private static async Task<string> ExecInteractiveCommand(string commandArgs)
     {
+        Globals.logger.LogInformation("Executing interactive rclone command: {Command}", commandArgs);
+
         var psi = CreateProcessStartInfo(commandArgs, interactive: true);
 
         using var process = new Process { StartInfo = psi };
@@ -47,6 +52,8 @@ public class Rclone
             return error;
 
         await process.WaitForExitAsync();
+
+        Globals.logger.LogInformation("Interactive command completed with exit code: {ExitCode}", process.ExitCode);
         return $"Interactive command '{commandArgs}' completed with exit code {process.ExitCode}";
     }
     #endregion
@@ -57,6 +64,8 @@ public class Rclone
     /// </summary>
     private static async Task<string> ExecNonInteractiveCommand(string commandArgs)
     {
+        Globals.logger.LogInformation("Executing non-interactive rclone command: {Command}", commandArgs);
+
         var psi = CreateProcessStartInfo(commandArgs, interactive: false);
 
         using var process = new Process { StartInfo = psi };
@@ -66,14 +75,20 @@ public class Rclone
         if (!TryStartProcess(process, out string error))
             return error;
 
-        var outputTask = ReadStreamLineByLine(process.StandardOutput, output, line => Console.WriteLine(line));
-        var errorTask = ReadStreamLineByLine(process.StandardError, errors, line => Console.WriteLine($"[ERROR] {line}"));
+        // Capture output without logging it - only collect for final return
+        var outputTask = ReadStreamLineByLine(process.StandardOutput, output, line => { });
+        var errorTask = ReadStreamLineByLine(process.StandardError, errors, line => { });
 
         await process.WaitForExitAsync();
         await Task.WhenAll(outputTask, errorTask);
 
+        Globals.logger.LogInformation("Non-interactive command completed with exit code: {ExitCode}", process.ExitCode);
+
         if (process.ExitCode != 0)
+        {
+            Globals.logger.LogError("Rclone command failed with exit code: {ExitCode}", process.ExitCode);
             return errors.Length > 0 ? errors.ToString() : $"Command failed with exit code {process.ExitCode}";
+        }
 
         return output.ToString();
     }
@@ -100,17 +115,21 @@ public class Rclone
     {
         try
         {
+            Globals.logger.LogDebug("Attempting to start rclone process...");
             process.Start();
             error = "";
+            Globals.logger.LogDebug("Rclone process started successfully");
             return true;
         }
         catch (Win32Exception ex) when (ex.NativeErrorCode == 2)
         {
+            Globals.logger.LogError("Rclone executable not found");
             error = "Error: rclone not found. Make sure it is installed and in your PATH.";
             return false;
         }
         catch (Exception ex)
         {
+            Globals.logger.LogError(ex, "Failed to start rclone process");
             error = $"Error starting rclone: {ex.Message}";
             return false;
         }

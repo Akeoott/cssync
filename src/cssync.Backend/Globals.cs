@@ -22,7 +22,7 @@ internal static class Globals
             });
         });
 
-        ILogger logger = factory.CreateLogger("cssync.Cli");
+        ILogger logger = factory.CreateLogger("cssync.Backend");
         return logger;
     }
 }
