@@ -2,6 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using cssync.Backend;
+
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace cssync.Cli;
@@ -10,12 +12,11 @@ internal class MainCli
 {
     internal static async Task Main(string[] args)
     {
+        Console.WriteLine(Process.GetCurrentProcess());
         Globals.logger.LogInformation("Initiated logging for CLI application.");
 
-        Console.WriteLine(
-            "\nMake sure rclone is configured. If not, do so.\n" +
-            "Use `rclone configure` to configure rclone.\n"
-        );
+        Globals.logger.LogInformation("Make sure rclone is configured. If not, do so.");
+        Globals.logger.LogInformation("Use `rclone configure` to configure rclone.");
 
         await InitBackend();
         await RunCLI();
@@ -23,6 +24,19 @@ internal class MainCli
 
     internal static async Task InitBackend()
     {
+        var backendProcesses = Process.GetProcessesByName("cssync.Backend");
+        bool currentBackendProcess = backendProcesses.Length > 0;
+
+        if (currentBackendProcess)
+        {
+            Globals.logger.LogInformation("Detected `cssync.Backend` successfully");
+        }
+        else
+        {
+            Globals.logger.LogWarning("Could not detect `cssync.Backend`");
+            Globals.logger.LogInformation("Attempting start backend.");
+        }
+
         Globals.logger.LogWarning("Could not detect backend as this feature was not implemented yet.");
     }
 
