@@ -3,8 +3,8 @@
 
 using cssync.Backend;
 
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace cssync.Cli;
 
