@@ -13,10 +13,8 @@ internal class MainCli
     internal static async Task Main(string[] args)
     {
         Console.WriteLine(Process.GetCurrentProcess());
-        Globals.logger.LogInformation("Initiated logging for CLI application.");
-
-        Globals.logger.LogInformation("Make sure rclone is configured. If not, do so.");
-        Globals.logger.LogInformation("Use `rclone configure` to configure rclone.");
+        Globals.logger.LogInformation("Initiated CLI application.");
+        Globals.logger.LogInformation("Make sure rclone is configured. Use `rclone configure` to configure rclone.");
 
         await InitBackend();
         await RunCLI();
@@ -29,11 +27,11 @@ internal class MainCli
 
         if (currentBackendProcess)
         {
-            Globals.logger.LogInformation("Detected `cssync.Backend` successfully");
+            Globals.logger.LogInformation("Detected `cssync.Backend` successfully: {processName}", backendProcesses);
         }
         else
         {
-            Globals.logger.LogWarning("Could not detect `cssync.Backend`");
+            Globals.logger.LogWarning("Could not detect `cssync.Backend`: {processName}", backendProcesses);
             Globals.logger.LogInformation("Attempting start backend.");
         }
 
@@ -72,7 +70,6 @@ internal class MainCli
 
     internal static async Task InitRclone()
     {
-        var rc = new Rclone();
         string input;
         string response;
 
@@ -87,7 +84,7 @@ internal class MainCli
             }
             else
             {
-                response = await rc.RunRclone(input);
+                response = await Rclone.RunRclone(input);
                 Console.WriteLine(response);
             }
         }
