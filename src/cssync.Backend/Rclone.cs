@@ -17,7 +17,7 @@ public class Rclone
     /// Executes one or more rclone commands and returns their combined output.
     /// </summary>
     /// <param name="commands">The rclone commands to execute.</param>
-    public async Task<string> RunRclone(params string[] commands)
+    public static async Task<string> RunRclone(params string[] commands)
     {
         Globals.logger.LogInformation("Running rclone command");
 
@@ -29,7 +29,7 @@ public class Rclone
         return string.Join("\n", results);
     }
 
-    private async Task<string> ExecCommand(string commandArgs)
+    private static async Task<string> ExecCommand(string commandArgs)
     {
         return IsInteractiveCommand(commandArgs)
             ? await ExecInteractiveCommand(commandArgs)
