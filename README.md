@@ -26,4 +26,3 @@ aiming for cross platform compatibility for various cloud storage services using
 | cssync.Backend | cssync.Cli / cssync.Gui |
 |:--------------:|:-----------------------:|
 | Handles logic  | Handle user input       |
-
