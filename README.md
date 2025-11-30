@@ -19,10 +19,10 @@
 > [!WARNING]
 > This project is WIP
 
+Cloud Storage Sync (cssync).<br>
 Written in C# for performance and safety,<br>
 aiming for cross platform compatibility for various cloud storage services using rclone.
 
 | cssync.Backend | cssync.Cli / cssync.Gui |
 |:--------------:|:-----------------------:|
 | Handles logic  | Handle user input       |
-
