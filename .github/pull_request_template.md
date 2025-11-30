@@ -17,7 +17,7 @@ Description...
 ### Improvements
 -
 
-### Minor changes
+### Other
 -
 
 ## Additional Information
