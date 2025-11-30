@@ -17,6 +17,9 @@ Description...
 ### Improvements
 -
 
+### Minor changes
+-
+
 ## Additional Information
 
 <!-- Include any other context, screenshots, deployment notes, or caveats reviewers should know. -->
