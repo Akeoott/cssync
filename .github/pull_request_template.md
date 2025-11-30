@@ -24,10 +24,11 @@ Description...
 
 <!-- Include any other context, screenshots, deployment notes, or caveats reviewers should know. -->
 
-### Related Issues
+### Issues
 <!-- Link to any relevant issues -->
-- Fixes #123
-- Related to #123
+- fixes #num
+- closes #num
+- resolves #num
 
 ### Checklist
 - [ ] Code follows project standards
