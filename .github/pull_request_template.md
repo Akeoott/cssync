@@ -30,6 +30,6 @@ Description...
 - Related to #123
 
 ### Checklist
-- [] Code follows project standards
-- [] Documentation updated if required
-- [] Program compiles with no errors
+- [ ] Code follows project standards
+- [ ] Documentation updated if required
+- [ ] Program compiles with no errors
