@@ -13,6 +13,12 @@ internal class MainCli
 {
     internal static async Task Main(string[] args)
     {
+        if (!Terminal.IsRunningInTerminal())
+        {
+            Terminal.RelaunchInTerminal();
+            return;
+        }
+
         Console.WriteLine(Process.GetCurrentProcess());
         Globals.logger.LogInformation("Initiated CLI application.");
         Globals.logger.LogInformation("Make sure rclone is configured. Use `rclone configure` to configure rclone.");
