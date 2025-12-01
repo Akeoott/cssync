@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace cssync.Cli;
+namespace cssync.Backend.helper;
 
 internal static class Globals
 {
@@ -21,20 +21,7 @@ internal static class Globals
             });
         });
 
-        ILogger logger = factory.CreateLogger("cssync.Cli");
+        ILogger logger = factory.CreateLogger("cssync.Backend");
         return logger;
     }
-}
-
-internal class StringConst
-{
-    internal const string unavailableOption =
-        "This operation is not available.\nIt may not have been integrated yet.";
-
-    internal const string mainOptions =
-        "\nAvailable commands:\n" +
-        "\t> help    |  See all options\n" +
-        "\t> exit    |  Exit program\n" +
-        "\t> rclone  |  Interact directly with rclone\n" +
-        "\t> cssync  |  Interact with cssync";
 }

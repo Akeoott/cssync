@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using cssync.Backend;
+using cssync.Cli.helper;
 
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -34,7 +35,6 @@ internal class MainCli
             Globals.logger.LogWarning("Could not detect `cssync.Backend`: {processName}", backendProcesses);
             Globals.logger.LogInformation("Attempting start backend.");
         }
-
         Globals.logger.LogWarning("Could not detect backend as this feature was not implemented yet.");
     }
 
