@@ -46,7 +46,7 @@ internal class MainCli
 
         while (true)
         {
-            input = GetInput.GetString("\n~\n> ").ToLower();
+            input = GetInput.GetString("\n~\n> ");
 
             switch (input)
             {
