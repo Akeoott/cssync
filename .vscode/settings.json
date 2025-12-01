@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "cssync",
+        "konsole",
         "rclone"
     ],
     "dotnet.defaultSolution": "cssync.sln"
