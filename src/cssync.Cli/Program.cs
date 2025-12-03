@@ -20,8 +20,9 @@ internal class MainCli
         }
 
         Console.WriteLine(Process.GetCurrentProcess());
-        Log.CliInfo("Initiated CLI application.");
-        Log.CliInfo("Make sure rclone is configured. Use `rclone configure` to configure rclone.");
+        Log.CliInfo(
+            "Initiated CLI application.\n" +
+            "Make sure rclone is configured. Use `rclone configure` to configure rclone.");
 
         await InitBackend();
         await RunCLI();
