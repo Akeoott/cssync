@@ -6,16 +6,20 @@ using cssync.Backend.helper;
 using cssync.Cli.helper;
 
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace cssync.Cli;
 
 internal class MainCli
 {
+    [DllImport("libc")]
+    private static extern int isatty(int fd);
+
     internal static async Task Main(string[] args)
     {
-        if (!Terminal.IsRunningInTerminal())
+        if (!HasTerminal())
         {
-            Terminal.RelaunchInTerminal();
+            Console.WriteLine("This program must be run from a terminal.");
             return;
         }
 
@@ -26,6 +30,25 @@ internal class MainCli
 
         await InitBackend();
         await RunCLI();
+    }
+
+    public static bool HasTerminal()
+    {
+        try
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return !Console.IsOutputRedirected && !Console.IsInputRedirected;
+            }
+            else
+            {
+                return isatty(0) == 1; // stdin
+            }
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     internal static async Task InitBackend()
