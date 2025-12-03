@@ -14,7 +14,6 @@ public static class Log
         {
             builder.AddSimpleConsole(options =>
             {
-                options.SingleLine = true;
                 options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
                 options.IncludeScopes = true;
             });
