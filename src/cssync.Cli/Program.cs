@@ -5,7 +5,6 @@ using cssync.Backend;
 using cssync.Backend.helper;
 using cssync.Cli.helper;
 
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace cssync.Cli;
@@ -99,6 +98,23 @@ internal class MainCli
 
     internal static async Task InitCssync()
     {
-        Log.CliWarn(StringConst.unavailableOption);
+        string input;
+        string response;
+
+        while (true)
+        {
+            Console.WriteLine("Enter 'return' to go back");
+            input = GetInput.GetString("\n~\n> cssync ").ToLower();
+
+            if (input == "return")
+            {
+                return;
+            }
+            else
+            {
+                response = await Cssync.RunCssync(input);
+                Console.WriteLine(response);
+            }
+        }
     }
 }
