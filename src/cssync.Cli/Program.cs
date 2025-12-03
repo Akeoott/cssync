@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using cssync.Backend;
+using cssync.Backend.helper;
 using cssync.Cli.helper;
 
 using Microsoft.Extensions.Logging;
@@ -20,8 +21,8 @@ internal class MainCli
         }
 
         Console.WriteLine(Process.GetCurrentProcess());
-        Globals.logger.LogInformation("Initiated CLI application.");
-        Globals.logger.LogInformation("Make sure rclone is configured. Use `rclone configure` to configure rclone.");
+        Log.CliInfo("Initiated CLI application.");
+        Log.CliInfo("Make sure rclone is configured. Use `rclone configure` to configure rclone.");
 
         await InitBackend();
         await RunCLI();
@@ -34,14 +35,14 @@ internal class MainCli
 
         if (currentBackendProcess)
         {
-            Globals.logger.LogInformation("Detected `cssync.Backend` successfully: {processName}", backendProcesses);
+            Log.CliInfo("Detected `cssync.Backend` successfully: {processName}", backendProcesses);
         }
         else
         {
-            Globals.logger.LogWarning("Could not detect `cssync.Backend`: {processName}", backendProcesses);
-            Globals.logger.LogInformation("Attempting start backend.");
+            Log.CliWarn("Could not detect `cssync.Backend`: {processName}", backendProcesses);
+            Log.CliInfo("Attempting start backend.");
         }
-        Globals.logger.LogWarning("Could not detect backend as this feature was not implemented yet.");
+        Log.CliWarn("Could not detect backend as this feature was not implemented yet.");
     }
 
     internal static async Task RunCLI()
@@ -98,6 +99,6 @@ internal class MainCli
 
     internal static async Task InitCssync()
     {
-        Globals.logger.LogWarning(StringConst.unavailableOption);
+        Log.CliWarn(StringConst.unavailableOption);
     }
 }

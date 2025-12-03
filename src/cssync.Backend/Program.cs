@@ -5,21 +5,33 @@ using cssync.Backend.helper;
 
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace cssync.Backend;
 
 internal class MainBackend
 {
-    internal static async Task Main(string[] args)
+    internal static void Main(string[] args)
     {
         Console.WriteLine(Process.GetCurrentProcess());
-        Globals.logger.LogInformation("Initiated Backend application.");
-        Globals.logger.LogInformation("Make sure rclone is configured. Use `rclone configure` to configure rclone.");
+        Log.BackendInfo("Initiated Backend application.");
+        Log.BackendInfo("Make sure rclone is configured. Use `rclone configure` to configure rclone.");
+        InitBackend();
     }
-}
 
-public class HttpServer
-{
-    // TODO: Add HttpServer logic
+    internal static void InitBackend()
+    {
+        Thread backgroundThread = new(static async () => Backend())
+        {
+            Name = "backgroundThread"
+        };
+        Log.BackendInfo("Started backgroundThread");
+        backgroundThread.Start();
+    }
+
+    internal static void Backend()
+    {
+
+    }
 }

@@ -21,7 +21,7 @@ public class Rclone
     /// <param name="commands">The rclone commands to execute.</param>
     public static async Task<string> RunRclone(params string[] commands)
     {
-        Globals.logger.LogInformation("Running rclone command");
+        Log.BackendInfo("Running rclone command");
 
         if (commands == null || commands.Length == 0)
             return "Error: No commands provided.";
@@ -44,7 +44,7 @@ public class Rclone
     /// </summary>
     private static async Task<string> ExecInteractiveCommand(string commandArgs)
     {
-        Globals.logger.LogInformation("Executing interactive rclone command: {Command}", commandArgs);
+        Log.BackendInfo("Executing interactive rclone command: {Command}", commandArgs);
 
         var psi = CreateProcessStartInfo(commandArgs, interactive: true);
 
@@ -55,7 +55,7 @@ public class Rclone
 
         await process.WaitForExitAsync();
 
-        Globals.logger.LogInformation("Interactive command completed with exit code: {ExitCode}", process.ExitCode);
+        Log.BackendInfo("Interactive command completed with exit code: {ExitCode}", process.ExitCode);
         return $"Interactive command '{commandArgs}' completed with exit code {process.ExitCode}";
     }
     #endregion
@@ -66,7 +66,7 @@ public class Rclone
     /// </summary>
     private static async Task<string> ExecNonInteractiveCommand(string commandArgs)
     {
-        Globals.logger.LogInformation("Executing non-interactive rclone command: {Command}", commandArgs);
+        Log.BackendInfo("Executing non-interactive rclone command: {Command}", commandArgs);
 
         var psi = CreateProcessStartInfo(commandArgs, interactive: false);
 
@@ -84,11 +84,11 @@ public class Rclone
         await process.WaitForExitAsync();
         await Task.WhenAll(outputTask, errorTask);
 
-        Globals.logger.LogInformation("Non-interactive command completed with exit code: {ExitCode}", process.ExitCode);
+        Log.BackendInfo("Non-interactive command completed with exit code: {ExitCode}", process.ExitCode);
 
         if (process.ExitCode != 0)
         {
-            Globals.logger.LogError("Rclone command failed with exit code: {ExitCode}", process.ExitCode);
+            Log.BackendError("Rclone command failed with exit code: {ExitCode}", process.ExitCode);
             return errors.Length > 0 ? errors.ToString() : $"Command failed with exit code {process.ExitCode}";
         }
 
@@ -117,21 +117,21 @@ public class Rclone
     {
         try
         {
-            Globals.logger.LogDebug("Attempting to start rclone process...");
+            Log.BackendDebug("Attempting to start rclone process...");
             process.Start();
             error = "";
-            Globals.logger.LogDebug("Rclone process started successfully");
+            Log.BackendDebug("Rclone process started successfully");
             return true;
         }
         catch (Win32Exception ex) when (ex.NativeErrorCode == 2)
         {
-            Globals.logger.LogError("Rclone executable not found");
+            Log.BackendError("Rclone executable not found");
             error = "Error: rclone not found. Make sure it is installed and in your PATH.";
             return false;
         }
         catch (Exception ex)
         {
-            Globals.logger.LogError(ex, "Failed to start rclone process");
+            Log.BackendError(ex, "Failed to start rclone process");
             error = $"Error starting rclone: {ex.Message}";
             return false;
         }
