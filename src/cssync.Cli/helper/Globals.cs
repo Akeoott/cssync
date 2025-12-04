@@ -14,4 +14,12 @@ internal class StringConst
         "\t> exit    |  Exit program\n" +
         "\t> rclone  |  Interact directly with rclone\n" +
         "\t> cssync  |  Interact with cssync";
+
+    internal const string cssyncOptions =
+        "Available commands:\n" +
+        "\t> cssync help   |  See all options\n" +
+        "\t> cssync add    |  Add a variable\n" +
+        "\t> cssync list   |  List all variables\n" +
+        "\t> cssync use    |  Use a variable\n" +
+        "\t> cssync timer  |  Set a constant timer that repeats a command";
 }

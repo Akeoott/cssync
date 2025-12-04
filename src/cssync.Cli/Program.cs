@@ -12,9 +12,6 @@ namespace cssync.Cli;
 
 internal class MainCli
 {
-    [DllImport("libc")]
-    private static extern int isatty(int fd);
-
     internal static async Task Main(string[] args)
     {
         if (!HasTerminal())
@@ -22,16 +19,16 @@ internal class MainCli
             Console.WriteLine("This program must be run from a terminal.");
             return;
         }
-
         Console.WriteLine(Process.GetCurrentProcess());
         Log.CliInfo(
             "Initiated CLI application.\n" +
             "Make sure rclone is configured. Use `rclone configure` to configure rclone.");
 
-        await InitBackend();
         await RunCLI();
     }
 
+    [DllImport("libc")]
+    private static extern int isatty(int fd);
     public static bool HasTerminal()
     {
         try
@@ -49,23 +46,6 @@ internal class MainCli
         {
             return false;
         }
-    }
-
-    internal static async Task InitBackend()
-    {
-        var backendProcesses = Process.GetProcessesByName("cssync.Backend");
-        bool currentBackendProcess = backendProcesses.Length > 0;
-
-        if (currentBackendProcess)
-        {
-            Log.CliInfo("Detected `cssync.Backend` successfully: {processName}", backendProcesses);
-        }
-        else
-        {
-            Log.CliWarn("Could not detect `cssync.Backend`: {processName}", backendProcesses);
-            Log.CliInfo("Attempting start backend.");
-        }
-        Log.CliWarn("Could not detect backend as this feature was not implemented yet.");
     }
 
     internal static async Task RunCLI()

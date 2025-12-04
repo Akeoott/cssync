@@ -3,7 +3,6 @@
 
 using cssync.Backend.helper;
 
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;

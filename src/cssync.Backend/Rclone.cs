@@ -3,7 +3,6 @@
 
 using cssync.Backend.helper;
 
-using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
@@ -27,8 +26,8 @@ public class Rclone
             return "Error: No commands provided.";
 
         var tasks = commands.Select(cmd => ExecCommand(cmd.Trim()));
-        var results = await Task.WhenAll(tasks);
-        return string.Join("\n", results);
+        var response = await Task.WhenAll(tasks);
+        return string.Join("\n", response);
     }
 
     private static async Task<string> ExecCommand(string commandArgs)
