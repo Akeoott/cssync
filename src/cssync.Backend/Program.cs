@@ -11,5 +11,9 @@ namespace cssync.Backend;
 
 internal class MainBackend
 {
+    internal static async Task Main()
+    {
+
+    }
     // TODO: Rewrite pending...
 }

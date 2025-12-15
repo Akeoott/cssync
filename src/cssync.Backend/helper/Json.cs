@@ -5,9 +5,6 @@ using System.Text.Json;
 
 namespace cssync.Backend.helper;
 
-/// <summary>
-/// Manage `config.json` for cssync
-/// </summary>
 public class Config
 {
     public required Dictionary<string, List<string>> Variables { get; set; }
@@ -16,20 +13,25 @@ public class Config
 
 public class Json
 {
-    public static readonly string configPath = AppDomain.CurrentDomain.BaseDirectory + "config.json";
-    private static readonly JsonSerializerOptions options = new() { WriteIndented = true };
+    internal static readonly string configPath = AppDomain.CurrentDomain.BaseDirectory + "config.json";
+    internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
 
+    /// <summary>
+    /// Serializes input from the Config class
+    /// </summary>
+    /// <param name="input">json config</param>
+    /// <returns>string containing serialized config</returns>
     internal static string Serialize(Config input)
     {
-        Log.BackendInfo("Serializing json data.");
         return JsonSerializer.Serialize(input, options);
     }
 
     /// <summary>
-    /// Deserializes config located next to application
+    /// Deserializes config located next to application.
+    /// Generates config if not found.
     /// </summary>
     /// <returns>Config of application</returns>
-    internal static Config Deserialize()
+    internal static async Task<Config> Deserialize()
     {
         int attempts = 0;
 
@@ -37,13 +39,13 @@ public class Json
         {
             if (!File.Exists(configPath))
             {
-                GenConfig();
+                await GenConfig();
             }
             try
             {
-                Log.BackendInfo("Reading config.");
+                Log.BackendDebug("Reading config.");
 
-                string json = File.ReadAllText(configPath);
+                string json = await File.ReadAllTextAsync(configPath);
                 return JsonSerializer.Deserialize<Config>(json)
                     ?? throw new InvalidDataException("Output is null or empty.");
             }
@@ -51,7 +53,7 @@ public class Json
             {
                 attempts++;
                 Log.BackendCritical("Loading config failed (attempt {attempts}/3). {ex}: {ex.Message}.", attempts, ex, ex.Message);
-                Thread.Sleep(100);
+                await Task.Delay(100);
             }
         }
         throw new InvalidOperationException($"Something went wrong. Failed to get config after {attempts} attempts.");
@@ -60,8 +62,9 @@ public class Json
     /// <summary>
     /// Generates a json file in application directory if no file was found.
     /// </summary>
-    private static void GenConfig()
+    internal static async Task GenConfig()
     {
+        Log.BackendInfo("Generating config.");
         if (File.Exists(configPath))
         {
             Log.BackendInfo("Config exists.");
@@ -69,36 +72,41 @@ public class Json
         }
         else
         {
-            string jsonString;
-
+            Log.BackendWarn("Config doesn't exist.\nGenerating config.");
             Config config = new()
             {
                 Variables = [],
                 Timer = [],
             };
-
-            Log.BackendWarn("Config doesn't exist.\nGenerating config.");
-
-            jsonString = Serialize(config);
-            File.WriteAllText(configPath, jsonString);
-
+            await WriteConfig(config);
             Log.BackendInfo("Successfully wrote config.");
         }
     }
 
     /// <summary>
-    /// Edit value in config
+    /// Writes config to file asynchronously
     /// </summary>
-    public static void EditConfig()
+    /// <param name="config">Config to write</param>
+    internal static async Task WriteConfig(Config config)
     {
-
+        try
+        {
+            string jsonString = Serialize(config);
+            await File.WriteAllTextAsync(configPath, jsonString);
+            Log.BackendInfo("Successfully wrote config.");
+        }
+        catch (Exception ex)
+        {
+            Log.BackendCritical("Failed to write config. {ex}: {ex.Message}", ex, ex.Message);
+        }
     }
 
     /// <summary>
-    /// Read config values
+    /// Get current configuration of cssync.
     /// </summary>
-    public static void ReadConfig()
+    /// <returns>Current config</returns>
+    public static async Task<Config> GetConfig()
     {
-
+        return await Deserialize();
     }
 }
