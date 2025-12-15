@@ -12,7 +12,7 @@ namespace cssync.Cli;
 
 internal class MainCli
 {
-    internal static async Task Main(string[] args)
+    internal static async Task Main()
     {
         if (!HasTerminal())
         {
