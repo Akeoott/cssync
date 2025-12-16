@@ -5,13 +5,13 @@ using System.Text.Json;
 
 namespace cssync.Backend.helper;
 
-public class Config
+internal class Config
 {
     public required Dictionary<string, List<string>> Variables { get; set; }
     public required Dictionary<string, List<int>> Timer { get; set; }
 }
 
-public class Json
+internal static class Json
 {
     internal static readonly string configPath = AppDomain.CurrentDomain.BaseDirectory + "config.json";
     internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
@@ -43,7 +43,7 @@ public class Json
             }
             try
             {
-                Log.BackendDebug("Reading config.");
+                Log.Debug("Reading config.");
 
                 string json = await File.ReadAllTextAsync(configPath);
                 return JsonSerializer.Deserialize<Config>(json)
@@ -52,7 +52,7 @@ public class Json
             catch (Exception ex) when (ex is FileNotFoundException || ex is JsonException || ex is InvalidDataException)
             {
                 attempts++;
-                Log.BackendCritical("Loading config failed (attempt {attempts}/3). {ex}: {ex.Message}.", attempts, ex, ex.Message);
+                Log.Critical("Loading config failed (attempt {attempts}/3). {ex}: {ex.Message}.", attempts, ex, ex.Message);
                 await Task.Delay(100);
             }
         }
@@ -64,23 +64,31 @@ public class Json
     /// </summary>
     internal static async Task GenConfig()
     {
-        Log.BackendInfo("Generating config.");
         if (File.Exists(configPath))
         {
-            Log.BackendInfo("Config exists.");
+            Log.Info("Config exists.");
             return;
         }
         else
         {
-            Log.BackendWarn("Config doesn't exist.\nGenerating config.");
+            Log.Warn("Config doesn't exist.\nGenerating config.");
             Config config = new()
             {
                 Variables = [],
                 Timer = [],
             };
             await WriteConfig(config);
-            Log.BackendInfo("Successfully wrote config.");
+            Log.Info("Successfully generated config.");
         }
+    }
+
+    /// <summary>
+    /// Get current configuration of cssync.
+    /// </summary>
+    /// <returns>Current config</returns>
+    public static async Task<Config> GetConfig()
+    {
+        return await Deserialize();
     }
 
     /// <summary>
@@ -93,20 +101,11 @@ public class Json
         {
             string jsonString = Serialize(config);
             await File.WriteAllTextAsync(configPath, jsonString);
-            Log.BackendInfo("Successfully wrote config.");
+            Log.Info("Successfully wrote config.");
         }
         catch (Exception ex)
         {
-            Log.BackendCritical("Failed to write config. {ex}: {ex.Message}", ex, ex.Message);
+            Log.Critical("Failed to write config. {ex}: {ex.Message}", ex, ex.Message);
         }
-    }
-
-    /// <summary>
-    /// Get current configuration of cssync.
-    /// </summary>
-    /// <returns>Current config</returns>
-    public static async Task<Config> GetConfig()
-    {
-        return await Deserialize();
     }
 }

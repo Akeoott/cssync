@@ -9,7 +9,7 @@ public class Cssync
 {
     public static async Task<string> RunCssync(params string[] commands)
     {
-        Log.BackendWarn("This operation is not available.\nIt may not have been integrated yet.");
+        Log.Warn("This operation is not available.\nIt may not have been integrated yet.");
         return "";
     }
 
