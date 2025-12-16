@@ -94,17 +94,14 @@ public static class Log
     {
         var fileName = Path.GetFileName(file);
         var className = Path.GetFileNameWithoutExtension(file);
-
         var logger = _loggerFactory.Value.CreateLogger(className);
-        var formattedArgs = new object[] { className, member, fileName, line }
-            .Concat(args)
-            .ToArray();
+        var prefix = $"[{className}.{member} ({fileName}:{line})] ";
 
         logger.Log(
             level,
             exception,
-            "[{Class}.{Member} ({File}:{Line})] " + message,
-            formattedArgs
+            prefix + message,
+            args
         );
     }
 }

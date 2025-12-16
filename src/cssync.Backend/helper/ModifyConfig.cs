@@ -13,14 +13,14 @@ public class ModifyConfig
     /// </summary>
     public static async Task AddValue(string section, string key, object value)
     {
-        Log.BackendInfo("Adding new key '{key}' to {section} section", key, section);
+        Log.Info("Adding new key '{key}' to {section} section", key, section);
         var config = await Json.Deserialize();
 
         try
         {
             if (config.Variables.ContainsKey(key) || config.Timer.ContainsKey(key))
             {
-                Log.BackendWarn("Key '{key}' already exists. Use AppendValue to modify or EditValue to replace", key);
+                Log.Info("Key '{key}' already exists. Use AppendValue to modify or EditValue to replace", key);
                 return;
             }
 
@@ -29,11 +29,11 @@ public class ModifyConfig
                 if (value is List<string> stringList)
                 {
                     config.Variables.Add(key, stringList);
-                    Log.BackendInfo("Added key '{key}' with {count} string value(s) to Variables", key, stringList.Count);
+                    Log.Info("Added key '{key}' with {count} string value(s) to Variables", key, stringList.Count);
                 }
                 else
                 {
-                    Log.BackendError("Invalid value type for Variables section. Expected List<string>");
+                    Log.Error("Invalid value type for Variables section. Expected List<string>");
                     return;
                 }
             }
@@ -42,30 +42,30 @@ public class ModifyConfig
                 if (value is List<int> intList)
                 {
                     config.Timer.Add(key, intList);
-                    Log.BackendInfo("Added key '{key}' with {count} integer value(s) to Timer", key, intList.Count);
+                    Log.Info("Added key '{key}' with {count} integer value(s) to Timer", key, intList.Count);
                 }
                 else
                 {
-                    Log.BackendError("Invalid value type for Timer section. Expected List<int>");
+                    Log.Error("Invalid value type for Timer section. Expected List<int>");
                     return;
                 }
             }
             else
             {
-                Log.BackendError("Invalid section '{section}'. Must be 'Variables' or 'Timer'", section);
+                Log.Error("Invalid section '{section}'. Must be 'Variables' or 'Timer'", section);
                 return;
             }
 
             await Json.WriteConfig(config);
-            Log.BackendInfo("Configuration saved successfully");
+            Log.Info("Configuration saved successfully");
         }
         catch (ArgumentException ex)
         {
-            Log.BackendWarn("Key '{key}' already exists in {section} section: {message}", key, section, ex.Message);
+            Log.Warn("Key '{key}' already exists in {section} section: {message}", key, section, ex.Message);
         }
         catch (Exception ex)
         {
-            Log.BackendError(ex, "Failed to add value to configuration");
+            Log.Error(ex, "Failed to add value to configuration");
         }
     }
 
@@ -74,7 +74,7 @@ public class ModifyConfig
     /// </summary>
     public static async Task AppendValue(string section, string key, object value)
     {
-        Log.BackendInfo("Appending value(s) to key '{key}' in {section} section", key, section);
+        Log.Info("Appending value(s) to key '{key}' in {section} section", key, section);
         var config = await Json.Deserialize();
 
         try
@@ -83,7 +83,7 @@ public class ModifyConfig
             {
                 if (!config.Variables.TryGetValue(key, out var list))
                 {
-                    Log.BackendError("Key '{key}' not found in Variables section", key);
+                    Log.Error("Key '{key}' not found in Variables section", key);
                     return;
                 }
 
@@ -91,24 +91,24 @@ public class ModifyConfig
                 {
                     list.Add(s);
                     await Json.WriteConfig(config);
-                    Log.BackendInfo("Appended string value to key '{key}', list now contains {count} items", key, list.Count);
+                    Log.Info("Appended string value to key '{key}', list now contains {count} items", key, list.Count);
                 }
                 else if (value is List<string> strings)
                 {
                     list.AddRange(strings);
                     await Json.WriteConfig(config);
-                    Log.BackendInfo("Appended {count} string value(s) to key '{key}', list now contains {total} items", strings.Count, key, list.Count);
+                    Log.Info("Appended {count} string value(s) to key '{key}', list now contains {total} items", strings.Count, key, list.Count);
                 }
                 else
                 {
-                    Log.BackendError("Invalid value type for Variables section. Expected string or List<string>");
+                    Log.Error("Invalid value type for Variables section. Expected string or List<string>");
                 }
             }
             else if (section == "Timer")
             {
                 if (!config.Timer.TryGetValue(key, out var list))
                 {
-                    Log.BackendError("Key '{key}' not found in Timer section", key);
+                    Log.Error("Key '{key}' not found in Timer section", key);
                     return;
                 }
 
@@ -116,76 +116,116 @@ public class ModifyConfig
                 {
                     list.Add(i);
                     await Json.WriteConfig(config);
-                    Log.BackendInfo("Appended integer value to key '{key}', list now contains {count} items", key, list.Count);
+                    Log.Info("Appended integer value to key '{key}', list now contains {count} items", key, list.Count);
                 }
                 else if (value is List<int> ints)
                 {
                     list.AddRange(ints);
                     await Json.WriteConfig(config);
-                    Log.BackendInfo("Appended {count} integer value(s) to key '{key}', list now contains {total} items", ints.Count, key, list.Count);
+                    Log.Info("Appended {count} integer value(s) to key '{key}', list now contains {total} items", ints.Count, key, list.Count);
                 }
                 else
                 {
-                    Log.BackendError("Invalid value type for Timer section. Expected int or List<int>");
+                    Log.Error("Invalid value type for Timer section. Expected int or List<int>");
                 }
             }
             else
             {
-                Log.BackendError("Invalid section '{section}'. Must be 'Variables' or 'Timer'", section);
+                Log.Error("Invalid section '{section}'. Must be 'Variables' or 'Timer'", section);
             }
         }
         catch (Exception ex)
         {
-            Log.BackendError(ex, "Failed to append value to configuration");
+            Log.Error(ex, "Failed to append value to configuration");
         }
     }
 
     /// <summary>
-    /// Edits an existing value in the configuration
+    /// Edits a single value inside a configuration section at a specific index.
     /// </summary>
-    public static async Task EditValue(string section, string key, object newValue)
+    /// <param name="section">
+    /// The configuration section to edit (e.g. "Variables" or "Timer").
+    /// </param>
+    /// <param name="key">
+    /// The key within the section containing the value list.
+    /// </param>
+    /// <param name="location">
+    /// Zero-based index of the value to edit within the key.
+    /// </param>
+    /// <param name="newValue">
+    /// The new value to assign. Must be a string for Variables or an int for Timer.
+    /// </param>
+    public static async Task EditValue(string section, string key, int location, object newValue)
     {
-        Log.BackendInfo("Editing key '{key}' in {section} section", key, section);
+        Log.Info("Editing config at: {section}, {key}", section, key);
+
         var config = await Json.Deserialize();
 
         try
         {
-            if (section == "Variables" && config.Variables.TryGetValue(key, out List<string>? valueVar))
+            if (section == "Variables")
             {
-                if (newValue is not List<string> strings)
+                if (!config.Variables.TryGetValue(key, out List<string>? values))
                 {
-                    Log.BackendError("Invalid value type for Variables section. Expected List<string>");
+                    Log.Error("Value does not exist");
                     return;
                 }
-
-                int oldCount = valueVar.Count;
-                config.Variables[key] = strings;
-                await Json.WriteConfig(config);
-
-                Log.BackendInfo("Edited key '{key}' in Variables: {oldCount} => {newCount} items", key, oldCount, strings.Count);
-            }
-            else if (section == "Timer" && config.Timer.TryGetValue(key, out List<int>? valueTimer))
-            {
-                if (newValue is not List<int> ints)
+                else if (location < 0 || location >= values.Count)
                 {
-                    Log.BackendError("Invalid value type for Timer section. Expected List<int>");
+                    Log.Error("Selected value does not exist at location");
                     return;
                 }
-
-                int oldCount = valueTimer.Count;
-                config.Timer[key] = ints;
-                await Json.WriteConfig(config);
-
-                Log.BackendInfo("Edited key '{key}' in Timer: {oldCount} => {newCount} items", key, oldCount, ints.Count);
+                else if (newValue is not string newString)
+                {
+                    Log.Error("New value is an incorrect data type");
+                    return;
+                }
+                else if (values[location] == newString)
+                {
+                    Log.Error("New value is the same as existing one");
+                    return;
+                }
+                else
+                {
+                    values[location] = newString;
+                    await Json.WriteConfig(config);
+                    return;
+                }
             }
-            else
+            else if (section == "Timer")
             {
-                Log.BackendError("Key '{key}' not found in {section} section", key, section);
+                if (!config.Timer.TryGetValue(key, out List<int>? values))
+                {
+                    Log.Error("Selected key does not exist");
+                    return;
+                }
+                else if (location < 0 || location >= values.Count)
+                {
+                    Log.Error("Selected value does not exist at location");
+                    return;
+                }
+                else if (newValue is not int newInt)
+                {
+                    Log.Error("New value is an incorrect data type");
+                    return;
+                }
+                else if (values[location] == newInt)
+                {
+                    Log.Error("New value is the same as existing one");
+                    return;
+                }
+                else
+                {
+                    values[location] = newInt;
+                    await Json.WriteConfig(config);
+                    return;
+                }
             }
+            Log.Info("Section not found");
         }
         catch (Exception ex)
         {
-            Log.BackendError(ex, "Failed to edit value in configuration");
+            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
         }
     }
 
@@ -194,7 +234,7 @@ public class ModifyConfig
     /// </summary>
     public static async Task RemoveValue(string section, string key, object valueToRemove)
     {
-        Log.BackendInfo("Removing value(s) from key '{key}' in {section} section", key, section);
+        Log.Info("Removing value(s) from key '{key}' in {section} section", key, section);
         var config = await Json.Deserialize();
 
         try
@@ -203,7 +243,7 @@ public class ModifyConfig
             {
                 if (!config.Variables.TryGetValue(key, out var list))
                 {
-                    Log.BackendError("Key '{key}' not found in Variables section", key);
+                    Log.Error("Key '{key}' not found in Variables section", key);
                     return;
                 }
 
@@ -216,25 +256,25 @@ public class ModifyConfig
 
                 if (removed < 0)
                 {
-                    Log.BackendError("Invalid value type for Variables section. Expected string or List<string>");
+                    Log.Error("Invalid value type for Variables section. Expected string or List<string>");
                     return;
                 }
 
                 if (removed > 0)
                 {
                     await Json.WriteConfig(config);
-                    Log.BackendInfo("Removed {removed} string value(s) from key '{key}'", removed, key);
+                    Log.Info("Removed {removed} string value(s) from key '{key}'", removed, key);
                 }
                 else
                 {
-                    Log.BackendWarn("No string values found to remove from key '{key}'", key);
+                    Log.Warn("No string values found to remove from key '{key}'", key);
                 }
             }
             else if (section == "Timer")
             {
                 if (!config.Timer.TryGetValue(key, out var list))
                 {
-                    Log.BackendError("Key '{key}' not found in Timer section", key);
+                    Log.Error("Key '{key}' not found in Timer section", key);
                     return;
                 }
 
@@ -247,28 +287,28 @@ public class ModifyConfig
 
                 if (removed < 0)
                 {
-                    Log.BackendError("Invalid value type for Timer section. Expected int or List<int>");
+                    Log.Error("Invalid value type for Timer section. Expected int or List<int>");
                     return;
                 }
 
                 if (removed > 0)
                 {
                     await Json.WriteConfig(config);
-                    Log.BackendInfo("Removed {removed} integer value(s) from key '{key}'", removed, key);
+                    Log.Info("Removed {removed} integer value(s) from key '{key}'", removed, key);
                 }
                 else
                 {
-                    Log.BackendWarn("No integer values found to remove from key '{key}'", key);
+                    Log.Warn("No integer values found to remove from key '{key}'", key);
                 }
             }
             else
             {
-                Log.BackendError("Invalid section '{section}'. Must be 'Variables' or 'Timer'", section);
+                Log.Error("Invalid section '{section}'. Must be 'Variables' or 'Timer'", section);
             }
         }
         catch (Exception ex)
         {
-            Log.BackendError(ex, "Failed to remove value from configuration");
+            Log.Error(ex, "Failed to remove value from configuration");
         }
     }
 
@@ -277,7 +317,7 @@ public class ModifyConfig
     /// </summary>
     public static async Task RemoveKey(string section, string key)
     {
-        Log.BackendInfo("Removing key '{key}' from {section} section", key, section);
+        Log.Info("Removing key '{key}' from {section} section", key, section);
         var config = await Json.Deserialize();
 
         try
@@ -292,16 +332,16 @@ public class ModifyConfig
             if (removed)
             {
                 await Json.WriteConfig(config);
-                Log.BackendInfo("Successfully removed key '{key}' from {section} section", key, section);
+                Log.Info("Successfully removed key '{key}' from {section} section", key, section);
             }
             else
             {
-                Log.BackendError("Key '{key}' not found in {section} section", key, section);
+                Log.Error("Key '{key}' not found in {section} section", key, section);
             }
         }
         catch (Exception ex)
         {
-            Log.BackendError(ex, "Failed to remove key from configuration");
+            Log.Error(ex, "Failed to remove key from configuration");
         }
     }
 }
