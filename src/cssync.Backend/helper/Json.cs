@@ -11,10 +11,17 @@ internal class Config
     public required Dictionary<string, List<int>> Timer { get; set; }
 }
 
-internal static class Json
+internal class Json
 {
     internal static readonly string configPath = AppDomain.CurrentDomain.BaseDirectory + "config.json";
     internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
+
+    /// <summary>
+    /// Get current serialized configuration of cssync.
+    /// </summary>
+    /// <returns>Serialized config</returns>
+    public static async Task<string> GetSerializedConfig()
+        => Serialize(await Deserialize());
 
     /// <summary>
     /// Serializes input from the Config class
@@ -23,6 +30,7 @@ internal static class Json
     /// <returns>string containing serialized config</returns>
     internal static string Serialize(Config input)
     {
+        Log.Debug("Serializing config");
         return JsonSerializer.Serialize(input, options);
     }
 
@@ -43,20 +51,20 @@ internal static class Json
             }
             try
             {
-                Log.Debug("Reading config.");
+                Log.Debug("Deserializing config");
 
                 string json = await File.ReadAllTextAsync(configPath);
                 return JsonSerializer.Deserialize<Config>(json)
-                    ?? throw new InvalidDataException("Output is null or empty.");
+                    ?? throw new InvalidDataException("Output is null or empty");
             }
             catch (Exception ex) when (ex is FileNotFoundException || ex is JsonException || ex is InvalidDataException)
             {
                 attempts++;
-                Log.Critical("Loading config failed (attempt {attempts}/3). {ex}: {ex.Message}.", attempts, ex, ex.Message);
+                Log.Critical("Loading config failed (attempt {attempts}/3). {ex}: {ex.Message}", attempts, ex, ex.Message);
                 await Task.Delay(100);
             }
         }
-        throw new InvalidOperationException($"Something went wrong. Failed to get config after {attempts} attempts.");
+        throw new InvalidOperationException($"Something went wrong. Failed to get config after {attempts} attempts");
     }
 
     /// <summary>
@@ -66,29 +74,19 @@ internal static class Json
     {
         if (File.Exists(configPath))
         {
-            Log.Info("Config exists.");
+            Log.Info("Config exists");
             return;
         }
         else
         {
-            Log.Warn("Config doesn't exist.\nGenerating config.");
+            Log.Warn("Config doesn't exist. Generating config");
             Config config = new()
             {
                 Variables = [],
                 Timer = [],
             };
             await WriteConfig(config);
-            Log.Info("Successfully generated config.");
         }
-    }
-
-    /// <summary>
-    /// Get current configuration of cssync.
-    /// </summary>
-    /// <returns>Current config</returns>
-    public static async Task<Config> GetConfig()
-    {
-        return await Deserialize();
     }
 
     /// <summary>
@@ -101,7 +99,7 @@ internal static class Json
         {
             string jsonString = Serialize(config);
             await File.WriteAllTextAsync(configPath, jsonString);
-            Log.Info("Successfully wrote config.");
+            Log.Debug("Wrote to config");
         }
         catch (Exception ex)
         {
