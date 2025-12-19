@@ -84,7 +84,7 @@ internal class MainCli
         while (true)
         {
             Console.WriteLine("Enter 'return' to go back");
-            input = GetInput.GetString("\n~\n> rclone ").ToLower();
+            input = GetInput.GetString("\n~\n> rclone ");
 
             if (input == "return")
             {
@@ -106,7 +106,7 @@ internal class MainCli
         while (true)
         {
             Console.WriteLine("Enter 'return' to go back");
-            input = GetInput.GetString("\n~\n> cssync ").ToLower();
+            input = GetInput.GetString("\n~\n> cssync ");
 
             if (input == "return")
             {
