@@ -22,7 +22,7 @@ public class Cssync
             > cssync run     |  Run a variable
         Scopes (case sensitive):
             help             |  See usage and expanded info for each option
-            Varaibles        |  Configure your Variables (rclone command presets)
+            Variables        |  Configure your Variables (rclone command presets)
             Timer            |  Configure the Timer (when commands periodically execute)
             Manual           |  Enter your own args (not recommended)
         """;
