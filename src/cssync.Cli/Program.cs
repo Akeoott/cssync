@@ -20,7 +20,7 @@ internal class MainCli
             return;
         }
         Console.WriteLine(Process.GetCurrentProcess());
-        Log.Info("Initiated CLI application. Make sure rclone is configured. Use `rclone configure` to configure rclone.");
+        Log.Info("Initiated CLI application. Make sure rclone is configured. Use `rclone config` to configure rclone.");
 
         await RunCLI();
     }
@@ -46,11 +46,22 @@ internal class MainCli
         }
     }
 
+    internal const string mainOptions = """
+        Usage:
+            > [options]
+        Options:
+            > help    |  See all options
+            > exit    |  Exit program
+            > rclone  |  Interact directly with rclone
+            > cssync  |  Interact with cssync
+        """;
+
     internal static async Task RunCLI()
     {
         string input;
 
-        Console.WriteLine(StringConst.mainOptions);
+        Console.WriteLine(mainOptions);
+        Console.WriteLine("\nWARNING: Its highly recommended to use the UI version of cssync (If available)");
 
         while (true)
         {
@@ -70,7 +81,7 @@ internal class MainCli
                     break;
 
                 default:
-                    Console.WriteLine(StringConst.mainOptions);
+                    Console.WriteLine(mainOptions);
                     break;
             }
         }

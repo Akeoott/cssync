@@ -21,9 +21,8 @@ public class Rclone
     public static async Task<string> RunRclone(params string[] commands)
     {
         Log.Info("Running rclone command");
-
         if (commands == null || commands.Length == 0)
-            return "Error: No commands provided.";
+            return "No commands provided";
 
         var tasks = commands.Select(cmd => ExecCommand(cmd.Trim()));
         var response = await Task.WhenAll(tasks);

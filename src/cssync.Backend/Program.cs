@@ -3,10 +3,6 @@
 
 using cssync.Backend.helper;
 
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace cssync.Backend;
 
 internal class MainBackend
