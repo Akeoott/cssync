@@ -2,8 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using cssync.Backend;
-using cssync.Backend.helper;
-using cssync.Cli.helper;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -12,19 +10,6 @@ namespace cssync.Cli;
 
 internal class MainCli
 {
-    internal static async Task Main()
-    {
-        if (!HasTerminal())
-        {
-            Console.WriteLine("This program must be run from a terminal.");
-            return;
-        }
-        Console.WriteLine(Process.GetCurrentProcess());
-        Log.Info("Initiated CLI application. Make sure rclone is configured. Use `rclone config` to configure rclone.");
-
-        await RunCLI();
-    }
-
     [DllImport("libc")]
     private static extern int isatty(int fd);
     public static bool HasTerminal()
@@ -46,6 +31,19 @@ internal class MainCli
         }
     }
 
+    internal static async Task Main()
+    {
+        if (!HasTerminal())
+        {
+            Console.WriteLine("This program must be run from a terminal.");
+            return;
+        }
+        Console.WriteLine(Process.GetCurrentProcess());
+        Console.WriteLine("Initiated CLI application. Make sure rclone is configured. Use `rclone config` to configure rclone.");
+
+        await RunCLI();
+    }
+
     internal const string mainOptions = """
         Usage:
             > [options]
@@ -65,7 +63,7 @@ internal class MainCli
 
         while (true)
         {
-            input = GetInput.GetString("\n~\n> ");
+            input = GetString("\n~\n> ");
 
             switch (input)
             {
@@ -95,7 +93,7 @@ internal class MainCli
         while (true)
         {
             Console.WriteLine("Enter 'return' to go back");
-            input = GetInput.GetString("\n~\n> rclone ");
+            input = GetString("\n~\n> rclone ");
 
             if (input == "return")
             {
@@ -117,7 +115,7 @@ internal class MainCli
         while (true)
         {
             Console.WriteLine("Enter 'return' to go back");
-            input = GetInput.GetString("\n~\n> cssync ");
+            input = GetString("\n~\n> cssync ");
 
             if (input == "return")
             {
@@ -129,5 +127,21 @@ internal class MainCli
                 Console.WriteLine(response);
             }
         }
+    }
+
+    internal static string GetString(string prompt)
+    {
+        string? value;
+        do
+        {
+            Console.Write(prompt);
+            value = Console.ReadLine()?.Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                Console.WriteLine(mainOptions);
+            }
+        } while (string.IsNullOrWhiteSpace(value));
+        return value;
     }
 }
