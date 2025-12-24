@@ -1,11 +1,16 @@
 ﻿// Copyright (c) Ame (Akeoott) <ame@akeoot.org>. Licensed under the GPLv3 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Diagnostics;
+using cssync.Backend.helper;
+
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Text;
 
 namespace cssync.Backend;
+
+//! NOTE: Rewrite will happen once everything else is set in place.
+//!       As long as this works, don't try to 'fix' it.
 
 /// <summary>
 /// Handles execution of rclone commands with support for both interactive and non-interactive modes.
@@ -16,17 +21,18 @@ public class Rclone
     /// Executes one or more rclone commands and returns their combined output.
     /// </summary>
     /// <param name="commands">The rclone commands to execute.</param>
-    public async Task<string> RunRclone(params string[] commands)
+    public static async Task<string> RunRclone(params string[] commands)
     {
+        Log.Info("Running rclone command");
         if (commands == null || commands.Length == 0)
-            return "Error: No commands provided.";
+            return "No commands provided";
 
         var tasks = commands.Select(cmd => ExecCommand(cmd.Trim()));
-        var results = await Task.WhenAll(tasks);
-        return string.Join("\n", results);
+        var response = await Task.WhenAll(tasks);
+        return string.Join("\n", response);
     }
 
-    private async Task<string> ExecCommand(string commandArgs)
+    private static async Task<string> ExecCommand(string commandArgs)
     {
         return IsInteractiveCommand(commandArgs)
             ? await ExecInteractiveCommand(commandArgs)
@@ -39,6 +45,8 @@ public class Rclone
     /// </summary>
     private static async Task<string> ExecInteractiveCommand(string commandArgs)
     {
+        Log.Info("Executing interactive rclone command: {Command}", commandArgs);
+
         var psi = CreateProcessStartInfo(commandArgs, interactive: true);
 
         using var process = new Process { StartInfo = psi };
@@ -47,6 +55,8 @@ public class Rclone
             return error;
 
         await process.WaitForExitAsync();
+
+        Log.Info("Interactive command completed with exit code: {ExitCode}", process.ExitCode);
         return $"Interactive command '{commandArgs}' completed with exit code {process.ExitCode}";
     }
     #endregion
@@ -57,6 +67,8 @@ public class Rclone
     /// </summary>
     private static async Task<string> ExecNonInteractiveCommand(string commandArgs)
     {
+        Log.Info("Executing non-interactive rclone command: {Command}", commandArgs);
+
         var psi = CreateProcessStartInfo(commandArgs, interactive: false);
 
         using var process = new Process { StartInfo = psi };
@@ -66,14 +78,20 @@ public class Rclone
         if (!TryStartProcess(process, out string error))
             return error;
 
-        var outputTask = ReadStreamLineByLine(process.StandardOutput, output, line => Console.WriteLine(line));
-        var errorTask = ReadStreamLineByLine(process.StandardError, errors, line => Console.WriteLine($"[ERROR] {line}"));
+        // Capture output without logging it - only collect for final return
+        var outputTask = ReadStreamLineByLine(process.StandardOutput, output, line => { });
+        var errorTask = ReadStreamLineByLine(process.StandardError, errors, line => { });
 
         await process.WaitForExitAsync();
         await Task.WhenAll(outputTask, errorTask);
 
+        Log.Info("Non-interactive command completed with exit code: {ExitCode}", process.ExitCode);
+
         if (process.ExitCode != 0)
+        {
+            Log.Error("Rclone command failed with exit code: {ExitCode}", process.ExitCode);
             return errors.Length > 0 ? errors.ToString() : $"Command failed with exit code {process.ExitCode}";
+        }
 
         return output.ToString();
     }
@@ -100,17 +118,21 @@ public class Rclone
     {
         try
         {
+            Log.Debug("Attempting to start rclone process...");
             process.Start();
             error = "";
+            Log.Debug("Rclone process started successfully");
             return true;
         }
         catch (Win32Exception ex) when (ex.NativeErrorCode == 2)
         {
+            Log.Error("Rclone executable not found");
             error = "Error: rclone not found. Make sure it is installed and in your PATH.";
             return false;
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Failed to start rclone process");
             error = $"Error starting rclone: {ex.Message}";
             return false;
         }

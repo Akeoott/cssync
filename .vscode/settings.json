@@ -1,7 +1,79 @@
 {
+    // File solution
+    "dotnet.defaultSolution": "cssync.sln",
+    // cSpell
     "cSpell.words": [
         "cssync",
+        "isatty",
+        "konsole",
+        "libc",
         "rclone"
     ],
-    "dotnet.defaultSolution": "cssync.sln"
+    "cSpell.caseSensitive": true,
+    "cSpell.autoFormatConfigFile": true,
+    "cSpell.ignoreRegExpList": [
+        "/[A-Z][a-z]+/",
+        "/[a-z]+[A-Z][a-z]+/",
+        "/^[A-Z]+$/",
+        "/[0-9]/"
+    ],
+    // Better Comments
+    "better-comments.multilineComments": true,
+    "better-comments.highlightPlainText": false,
+    "better-comments.tags": [
+        {
+            "tag": "!",
+            "color": "#FF2D00",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "?",
+            "color": "#3498DB",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "//",
+            "color": "#474747",
+            "strikethrough": true,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "note",
+            "color": "#98C379",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "todo",
+            "color": "#FF8C00",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "fixme",
+            "color": "#ffff00",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        }
+    ],
 }
