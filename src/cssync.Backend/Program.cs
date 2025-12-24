@@ -9,7 +9,9 @@ internal class MainBackend
 {
     internal static async Task Main()
     {
+        // NOTE: Backend may or may not become completely independent for automated use.
+        //       As long as thats no the case, this may stay unchanged.
+        // TODO: Rewrite pending once appropriate...
 
     }
-    // TODO: Rewrite pending...
 }

@@ -9,6 +9,9 @@ using System.Text;
 
 namespace cssync.Backend;
 
+//! NOTE: Rewrite will happen once everything else is set in place.
+//!       As long as this works, don't try to 'fix' it.
+
 /// <summary>
 /// Handles execution of rclone commands with support for both interactive and non-interactive modes.
 /// </summary>
