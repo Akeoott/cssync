@@ -17,12 +17,16 @@
 </div>
 
 > [!WARNING]
-> This project is WIP
+> This project is WIP and POC
 
-Cloud Storage Sync (cssync).<br>
-Written in C# for performance and safety,<br>
-aiming for cross platform compatibility for various cloud storage services using rclone.
+Written in C# for simplicity, performance and safety.<br>
+Aiming for cross platform compatibility and support for various cloud storage services using rclone.
 
 | cssync.Backend | cssync.Cli / cssync.Gui |
 |:--------------:|:-----------------------:|
 | Handles logic  | Handle user input       |
+
+> [!NOTE]
+> Planing to make backend fully independent from CLI and GUI,
+> by just accepting args when running in a terminal.
+> Gui is planned and will happen once the backend is finished.
