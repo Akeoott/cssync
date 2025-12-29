@@ -33,13 +33,7 @@ internal class MainBackend
 
     internal static async Task Main(string[] args)
     {
-        bool needsTerminal = true;
-        if (args.Length >= 1)
-        {
-            (args, needsTerminal) = ParseInput.ForceArgument(args);
-        }
-
-        if (!await HasTerminal() && !needsTerminal)
+        if (!await HasTerminal())
         {
             Log.Critical("This program must be run from a terminal.");
             Thread.Sleep(1000);
@@ -47,7 +41,6 @@ internal class MainBackend
         }
 
         Log.Debug("Current process: {ProcessName}", Process.GetCurrentProcess());
-
         switch (args.Length)
         {
             case 0:

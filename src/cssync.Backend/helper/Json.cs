@@ -7,8 +7,9 @@ namespace cssync.Backend.helper;
 
 internal class Config
 {
+    public required bool Run { get; set; }
     public required Dictionary<string, List<string>> Variables { get; set; }
-    public required Dictionary<string, List<int>> Timer { get; set; }
+    public required Dictionary<string, List<int>> Timers { get; set; }
 }
 
 internal class Json
@@ -82,10 +83,12 @@ internal class Json
             Log.Warn("Config doesn't exist. Generating config");
             Config config = new()
             {
+                Run = false,
                 Variables = [],
-                Timer = [],
+                Timers = [],
             };
             await WriteConfig(config);
+            Log.Info("Successfully generated config");
         }
     }
 

@@ -3,31 +3,42 @@
 
 namespace cssync.Backend.helper;
 
-/// <summary>
-/// Provides methods to modify the cssync configuration file
-/// </summary>
 public class ModifyConfig
 {
     /// <summary>
-    /// Edits a single value inside a configuration section at a specific index.
+    /// Helper to validate section and key, returning the list and expected type
     /// </summary>
-    /// <param name="section">
-    /// The configuration section to edit (e.g. "Variables" or "Timer").
-    /// </param>
-    /// <param name="key">
-    /// The key within the section containing the value list.
-    /// </param>
-    /// <param name="location">
-    /// Zero-based index of the value to edit within the key.
-    /// </param>
-    /// <param name="value">
-    /// The new value to assign. Must be a string for Variables or an int for Timer.
-    /// </param>
+    private static async Task<(bool success, Type expectedType, object? list)> GetSectionList(Config config, string section, string key)
+    {
+        switch (section)
+        {
+            case "Variables":
+                if (!config.Variables.TryGetValue(key, out List<string>? varList))
+                {
+                    Log.Error("Selected key does not exist in Variables");
+                    return (false, typeof(string), null);
+                }
+                return (true, typeof(string), varList);
+
+            case "Timers":
+                if (!config.Timers.TryGetValue(key, out List<int>? timerList))
+                {
+                    Log.Error("Selected key does not exist in Timers");
+                    return (false, typeof(int), null);
+                }
+                return (true, typeof(int), timerList);
+
+            default:
+                Log.Error("Section '{section}' not found", section);
+                return (false, null!, null);
+        }
+    }
+
     public static async Task EditValue(string section, string key, int location, object value)
     {
+        var config = await Json.Deserialize();
         Log.Info("Editing value in config at section: {section}, key: {key}, index: {location}", section, key, location);
         Log.Debug("value: {value}", value);
-        var config = await Json.Deserialize();
 
         try
         {
@@ -36,67 +47,53 @@ public class ModifyConfig
                 Log.Error("Entered value is null");
                 return;
             }
-            else if (section == "Variables")
+
+            var (success, expectedType, listObj) = await GetSectionList(config, section, key);
+            if (!success || listObj is null) return;
+
+            if (expectedType == typeof(string))
             {
-                if (!config.Variables.TryGetValue(key, out List<string>? values))
-                {
-                    Log.Error("Selected key does not exist");
-                    return;
-                }
-                else if (location < 0 || location >= values.Count)
-                {
-                    Log.Error("Selected value does not exist at location: {location}", location);
-                    return;
-                }
-                else if (value is not string newString)
+                if (value is not string newValueStr)
                 {
                     Log.Error("New value is an incorrect data type: {value}", value.GetType());
                     return;
                 }
-                else if (values[location] == newString)
-                {
-                    Log.Error("New value is the same as existing one");
-                    return;
-                }
-                else
-                {
-                    values[location] = newString;
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully edited value");
-                    return;
-                }
-            }
-            else if (section == "Timer")
-            {
-                if (!config.Timer.TryGetValue(key, out List<int>? values))
-                {
-                    Log.Error("Selected key does not exist");
-                    return;
-                }
-                else if (location < 0 || location >= values.Count)
+                var list = (List<string>)listObj;
+                if (location < 0 || location >= list.Count)
                 {
                     Log.Error("Selected value does not exist at location: {location}", location);
                     return;
                 }
-                else if (value is not int newInt)
-                {
-                    Log.Error("New value is an incorrect data type: {value}", value.GetType());
-                    return;
-                }
-                else if (values[location] == newInt)
+                if (list[location] == newValueStr)
                 {
                     Log.Error("New value is the same as existing one");
                     return;
                 }
-                else
+                list[location] = newValueStr;
+            }
+            else if (expectedType == typeof(int))
+            {
+                if (value is not int newValueInt)
                 {
-                    values[location] = newInt;
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully edited value");
+                    Log.Error("New value is an incorrect data type: {value}", value.GetType());
                     return;
                 }
+                var list = (List<int>)listObj;
+                if (location < 0 || location >= list.Count)
+                {
+                    Log.Error("Selected value does not exist at location: {location}", location);
+                    return;
+                }
+                if (list[location] == newValueInt)
+                {
+                    Log.Error("New value is the same as existing one");
+                    return;
+                }
+                list[location] = newValueInt;
             }
-            Log.Error("Section not found");
+
+            await Json.WriteConfig(config);
+            Log.Info("Successfully edited value");
         }
         catch (Exception ex)
         {
@@ -104,24 +101,11 @@ public class ModifyConfig
         }
     }
 
-    /// <summary>
-    /// Appends one or more values to an existing list in the configuration.
-    /// </summary>
-    /// <param name="section">
-    /// The configuration section to modify (e.g. "Variables" or "Timer").
-    /// </param>
-    /// <param name="key">
-    /// The key within the section containing the value list.
-    /// </param>
-    /// <param name="value">
-    /// The value(s) to append. Can be a single value or a list of values.
-    /// Must be a string (or List&lt;string&gt;) for Variables or an int (or List&lt;int&gt;) for Timer.
-    /// </param>
     public static async Task AppendValue(string section, string key, object value)
     {
+        var config = await Json.Deserialize();
         Log.Info("Appending value in config at: {section}, {key}", section, key);
         Log.Debug("value: {value}", value);
-        var config = await Json.Deserialize();
 
         try
         {
@@ -130,62 +114,35 @@ public class ModifyConfig
                 Log.Error("Entered value is null");
                 return;
             }
-            else if (section == "Variables")
-            {
-                if (!config.Variables.TryGetValue(key, out List<string>? values))
-                {
-                    Log.Error("Selected key does not exist");
-                    return;
-                }
-                else if (value is string newString)
-                {
-                    values.Add(newString);
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully appended value");
-                    return;
-                }
-                else if (value is List<string> newStringList)
-                {
-                    values.AddRange(newStringList);
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully appended value");
-                    return;
-                }
-                else
-                {
-                    Log.Error("New value is an incorrect data type: {value}", value.GetType());
-                    return;
-                }
-            }
-            else if (section == "Timer")
-            {
 
-                if (!config.Timer.TryGetValue(key, out List<int>? values))
-                {
-                    Log.Error("Selected key does not exist");
-                    return;
-                }
-                else if (value is int newInt)
-                {
-                    values.Add(newInt);
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully appended value");
-                    return;
-                }
-                else if (value is List<int> newIntList)
-                {
-                    values.AddRange(newIntList);
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully appended value");
-                    return;
-                }
+            var (success, expectedType, listObj) = await GetSectionList(config, section, key);
+            if (!success || listObj is null) return;
+
+            if (expectedType == typeof(string))
+            {
+                var list = (List<string>)listObj;
+                if (value is string strVal) list.Add(strVal);
+                else if (value is List<string> strList) list.AddRange(strList);
                 else
                 {
                     Log.Error("New value is an incorrect data type: {value}", value.GetType());
                     return;
                 }
             }
-            Log.Error("Section not found");
+            else if (expectedType == typeof(int))
+            {
+                var list = (List<int>)listObj;
+                if (value is int intVal) list.Add(intVal);
+                else if (value is List<int> intList) list.AddRange(intList);
+                else
+                {
+                    Log.Error("New value is an incorrect data type: {value}", value.GetType());
+                    return;
+                }
+            }
+
+            await Json.WriteConfig(config);
+            Log.Info("Successfully appended value");
         }
         catch (Exception ex)
         {
@@ -193,66 +150,39 @@ public class ModifyConfig
         }
     }
 
-    /// <summary>
-    /// Removes a specific value from a list in the configuration at a given index.
-    /// </summary>
-    /// <param name="section">
-    /// The configuration section to modify (e.g. "Variables" or "Timer").
-    /// </param>
-    /// <param name="key">
-    /// The key within the section containing the value list.
-    /// </param>
-    /// <param name="location">
-    /// Zero-based index of the value to remove within the key.
-    /// </param>
     public static async Task RemoveValue(string section, string key, int location)
     {
-        Log.Info("Removing value in config at section: {section}, key: {key}, index: {location}", section, key, location);
         var config = await Json.Deserialize();
+        Log.Info("Removing value in config at section: {section}, key: {key}, index: {location}", section, key, location);
 
         try
         {
-            if (section == "Variables")
+            var (success, expectedType, listObj) = await GetSectionList(config, section, key);
+            if (!success || listObj is null) return;
+
+            if (expectedType == typeof(string))
             {
-                if (!config.Variables.TryGetValue(key, out List<string>? values))
-                {
-                    Log.Error("Selected key does not exist");
-                    return;
-                }
-                else if (location < 0 || location >= values.Count)
+                var list = (List<string>)listObj;
+                if (location < 0 || location >= list.Count)
                 {
                     Log.Error("Selected value does not exist at location: {location}", location);
                     return;
                 }
-                else
-                {
-                    values.RemoveAt(location);
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully removed value");
-                    return;
-                }
+                list.RemoveAt(location);
             }
-            else if (section == "Timer")
+            else if (expectedType == typeof(int))
             {
-                if (!config.Timer.TryGetValue(key, out List<int>? values))
-                {
-                    Log.Error("Selected key does not exist");
-                    return;
-                }
-                else if (location < 0 || location >= values.Count)
+                var list = (List<int>)listObj;
+                if (location < 0 || location >= list.Count)
                 {
                     Log.Error("Selected value does not exist at location: {location}", location);
                     return;
                 }
-                else
-                {
-                    values.RemoveAt(location);
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully removed value");
-                    return;
-                }
+                list.RemoveAt(location);
             }
-            Log.Error("Section not found");
+
+            await Json.WriteConfig(config);
+            Log.Info("Successfully removed value");
         }
         catch (Exception ex)
         {
@@ -260,53 +190,69 @@ public class ModifyConfig
         }
     }
 
-    /// <summary>
-    /// Appends a new key to the configuration, initializing it with an empty list.
-    /// </summary>
-    /// <param name="section">
-    /// The configuration section where the key should be added (e.g. "Variables" or "Timer").
-    /// </param>
-    /// <param name="key">
-    /// The new key to add to the section.
-    /// </param>
     public static async Task AppendKey(string section, string key)
     {
-        Log.Info("Appending key in config at section: {section}, key: {key}", section, key);
         var config = await Json.Deserialize();
+        Log.Info("Appending key in config at section: {section}, key: {key}", section, key);
 
         try
         {
-            if (section == "Variables")
+            switch (section)
             {
-                if (config.Variables.ContainsKey(key))
-                {
-                    Log.Error("Selected key already exists");
+                case "Variables":
+                    if (config.Variables.ContainsKey(key))
+                    {
+                        Log.Error("Selected key already exists");
+                        return;
+                    }
+                    config.Variables[key] = new List<string>();
+                    break;
+
+                case "Timer":
+                    if (config.Timers.ContainsKey(key))
+                    {
+                        Log.Error("Selected key already exists");
+                        return;
+                    }
+                    config.Timers[key] = new List<int>();
+                    break;
+
+                default:
+                    Log.Error("Section not found");
                     return;
-                }
-                else
-                {
-                    config.Variables[key] = [];
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully appended key");
-                    return;
-                }
             }
-            else if (section == "Timer")
+
+            await Json.WriteConfig(config);
+            Log.Info("Successfully appended key");
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
+        }
+    }
+
+    public static async Task RemoveKey(string section, string key)
+    {
+        var config = await Json.Deserialize();
+        Log.Info("Removing key in config at section: {section}, key: {key}", section, key);
+
+        try
+        {
+            bool removed = section switch
             {
-                if (config.Timer.ContainsKey(key))
-                {
-                    Log.Error("Selected key already exists");
-                    return;
-                }
-                else
-                {
-                    config.Timer[key] = [];
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully appended key");
-                    return;
-                }
+                "Variables" => config.Variables.Remove(key),
+                "Timer" => config.Timers.Remove(key),
+                _ => throw new InvalidOperationException($"Section '{section}' not found")
+            };
+
+            if (!removed)
+            {
+                Log.Error("Selected key does not exist");
+                return;
             }
-            Log.Error("Section not found");
+
+            await Json.WriteConfig(config);
+            Log.Info("Successfully removed key");
         }
         catch (Exception ex)
         {
@@ -315,54 +261,50 @@ public class ModifyConfig
     }
 
     /// <summary>
-    /// Removes an entire key-value pair from the configuration.
+    /// Enable or disable cssync from performing rclone operations automatically
     /// </summary>
-    /// <param name="section">
-    /// The configuration section containing the key (e.g. "Variables" or "Timer").
-    /// </param>
-    /// <param name="key">
-    /// The key to remove from the section.
-    /// </param>
-    public static async Task RemoveKey(string section, string key)
+    /// <param name="shouldEnable">true to enable cssync and false to disable cssync</param>
+    /// <returns></returns>
+    public static async Task EnableDisableCssync(bool shouldEnable)
     {
-        Log.Info("Removing key in config at section: {section}, key: {key}", section, key);
         var config = await Json.Deserialize();
 
         try
         {
-            if (section == "Variables")
+            if (shouldEnable)
             {
-                if (!config.Variables.Remove(key))
-                {
-                    Log.Error("Selected key does not exist");
-                    return;
-                }
-                else
-                {
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully removed key");
-                    return;
-                }
+                Log.Debug("Enabling cssync");
+                config.Run = true;
+                await Json.WriteConfig(config);
+                Log.Info("Successfully enabled cssync to perform rclone operations");
             }
-            else if (section == "Timer")
+            else
             {
-                if (!config.Timer.Remove(key))
-                {
-                    Log.Error("Selected key does not exist");
-                    return;
-                }
-                else
-                {
-                    await Json.WriteConfig(config);
-                    Log.Info("Successfully removed key");
-                    return;
-                }
+                Log.Debug("Disabling cssync");
+                config.Run = false;
+                await Json.WriteConfig(config);
+                Log.Info("Successfully disabled cssync from performing rclone operations");
             }
-            Log.Error("Section not found");
         }
         catch (Exception ex)
         {
             Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
+        }
+    }
+
+    public static async Task<bool> GetCssyncStatus()
+    {
+        var config = await Json.Deserialize();
+        Log.Debug("Getting cssync status");
+
+        try
+        {
+            return config.Run;
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
+            return false;
         }
     }
 }

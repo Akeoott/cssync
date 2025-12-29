@@ -10,52 +10,45 @@ internal class ParseInput
         Console.WriteLine("Use --help for available options.");
     }
 
-    internal static (string[], bool) ForceArgument(string[] args)
-    {
-        bool forced = false;
-        if (args.Contains("--force") || args.Contains("-f"))
-        {
-            Array.Clear(args);
-            forced = true;
-        }
-        return (args, forced);
-    }
-
     internal static async Task SingleArgument(string arg)
     {
         switch (arg)
         {
             case "--help" or "-h":
-                Console.WriteLine
-                (
+                Console.WriteLine(
                     """
                     Usage:
-                        cssync [flag] [option]  |  Only one flag and option at a time.
-                    Flags taking options:
-                        --help      |  Learn how to use the available options
-                    Flags not taking options:
-                        --enable    |  Enable cssync to start performing rclone operations
-                        --disable   |  Disable cssync to stop performing rclone operations
-                        --force     |  Force running this application without a terminal (Can cause issues)
-                    Options:
-                        config      |  Learn to configure cssync and rclone
-                        rclone      |  Learn how to use rclone
-                        cssync      |  Learn how to use cssync
-                        learn-more  |  Learn the in depth details about cssync
+                        cssync [flag] [help-scope]
+                    Flags:
+                        --help     |  Learn how to use the available scope
+                        --status   |  Display if cssync is enabled or disabled
+                        --enable   |  Enable cssync to start performing rclone operations
+                        --disable  |  Disable cssync to stop performing rclone operations
+                    Help-Scopes (only usable with the --help flag):
+                        config     |  Learn to configure cssync and rclone
+                        rclone     |  Learn how to use rclone
+                        cssync     |  Learn how to use cssync
+                        more       |  Learn the in depth details about cssync
 
                     Please read through the options before using cssync!
-                    """
-                );
+                    """);
+                break;
+
+            case "--status" or "-s":
+                if (await ModifyConfig.GetCssyncStatus())
+                    Console.WriteLine("cssync is currently enabled");
+                else
+                    Console.WriteLine("cssync is currently disabled");
                 break;
 
             case "--enable" or "-e":
-                // TODO: Add enabling value to config
-                Console.WriteLine("This option will come soon...");
+                await ModifyConfig.EnableDisableCssync(true);
+                Console.WriteLine("Successfully enabled cssync to perform rclone operations");
                 break;
 
             case "--disable" or "-d":
-                // TODO: Add disabling value to config
-                Console.WriteLine("This option will come soon...");
+                await ModifyConfig.EnableDisableCssync(false);
+                Console.WriteLine("Successfully disabled cssync from performing rclone operations");
                 break;
 
             default:
@@ -81,12 +74,12 @@ internal class ParseInput
                 case "config":
                 case "rclone":
                 case "cssync":
-                case "learn-more":
+                case "more":
                     Console.WriteLine(
-                    $"""
-                This option is not available at the moment.
-                Check back later for {option} help.
-                """);
+                        $"""
+                        This option is not available at the moment.
+                        Check back later for {option} help.
+                        """);
                     break;
 
                 default:
