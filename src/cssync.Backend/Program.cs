@@ -59,5 +59,7 @@ internal class MainBackend
                 Console.WriteLine($"Too many arguments. Use --help for usage.");
                 break;
         }
+
+        // await Cssync.RunCssync();
     }
 }
