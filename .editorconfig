@@ -45,6 +45,6 @@ insert_final_newline = false
 
 # Indent style for other files
 
-[*.{csproj,resx,xml}]
+[*.{csproj,resx,xml,json,jsonc}]
 indent_style = space
 indent_size = 2

@@ -292,7 +292,7 @@ public class ModifyConfig
         }
     }
 
-    public static async Task<bool> GetCssyncStatus()
+    public static async Task<bool> GetStatus()
     {
         var config = await Json.Deserialize();
         Log.Debug("Getting cssync status");

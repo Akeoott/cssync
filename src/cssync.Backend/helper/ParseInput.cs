@@ -15,40 +15,20 @@ internal class ParseInput
         switch (arg)
         {
             case "--help" or "-h":
-                Console.WriteLine(
-                    """
-                    Usage:
-                        cssync [flag] [help-scope]
-                    Flags:
-                        --help     |  Learn how to use the available scope
-                        --status   |  Display if cssync is enabled or disabled
-                        --enable   |  Enable cssync to start performing rclone operations
-                        --disable  |  Disable cssync to stop performing rclone operations
-                    Help-Scopes (only usable with the --help flag):
-                        config     |  Learn to configure cssync and rclone
-                        rclone     |  Learn how to use rclone
-                        cssync     |  Learn how to use cssync
-                        more       |  Learn the in depth details about cssync
-
-                    Please read through the options before using cssync!
-                    """);
+                Console.WriteLine(Resources.Help);
                 break;
 
             case "--status" or "-s":
-                if (await ModifyConfig.GetCssyncStatus())
+                if (await ModifyConfig.GetStatus())
                     Console.WriteLine("cssync is currently enabled");
                 else
                     Console.WriteLine("cssync is currently disabled");
                 break;
 
-            case "--enable" or "-e":
-                await ModifyConfig.EnableDisableCssync(true);
-                Console.WriteLine("Successfully enabled cssync to perform rclone operations");
-                break;
-
-            case "--disable" or "-d":
-                await ModifyConfig.EnableDisableCssync(false);
-                Console.WriteLine("Successfully disabled cssync from performing rclone operations");
+            case "--init" or "-i":
+                Console.WriteLine("Generating config");
+                await Json.GenConfig();
+                Console.WriteLine("Finished generating config");
                 break;
 
             default:
@@ -72,14 +52,19 @@ internal class ParseInput
             switch (option)
             {
                 case "config":
+                    Console.WriteLine(Resources.HelpConfig);
+                    break;
+
                 case "rclone":
+                    Console.WriteLine(Resources.HelpRclone);
+                    break;
+
                 case "cssync":
+                    Console.WriteLine(Resources.HelpCssync);
+                    break;
+
                 case "more":
-                    Console.WriteLine(
-                        $"""
-                        This option is not available at the moment.
-                        Check back later for {option} help.
-                        """);
+                    Console.WriteLine(Resources.HelpMore);
                     break;
 
                 default:
@@ -90,6 +75,6 @@ internal class ParseInput
         }
 
         // Unknown flag with option
-        Console.WriteLine($"{flag} is unknown. Use --help for available options.");
+        Console.WriteLine($"{flag} is unknown or not compatible with {option}. Use --help for available options.");
     }
 }
