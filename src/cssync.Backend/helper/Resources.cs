@@ -25,103 +25,83 @@ internal static class Resources
         """;
 
     internal const string HelpConfig = """
-        Note (ignore till the GUI is available):
-            When using this application without the GUI,
-            configuration must be done manually.
+        Configuring cssync (manual editing required until GUI is available):
 
-        How to configure cssync:
-            cssync currently stores config.json next to the application binary in all cases.
-            If the config does not exist, run this application with --init to generate one.
-            Once you found the config, open it and manually edit its values.
-            The default config is going to look like this:
-                {
-                  "Run": false,
-                  "Variables": {},
-                  "Timers": {}
-                }
+        Overview:
+            This application is primarily a GUI for managing rclone operations. Until the GUI is available,
+            you must configure cssync manually by editing the config.json file located next to the application binary.
 
-            "Run":
-                It's basically an on and off switch:
-                If "Run" = true, it will run cssync.
-                If "Run" = false, it will not run cssync.
+        Initializing Config:
+            Run the application with --init to generate a default config if one does not exist.
+            Default config structure:
+            {
+              "Run": false,
+              "Variables": {},
+              "Timers": {}
+            }
 
-            "Variables":
-                Stores all your rclone presets.
-                Each key in "Variables" is an ordered list of rclone commands that run sequentially.
-                Here is an example on how "Variables" can look like:
-                    "Variables": {
-                      "key1": [
-                        "sync ~/Pictures remote:Pictures/",
-                        "delete remote:Pictures/"
-                      ],
-                      "key2": [
-                        "sync ~/Downloads remote:Backup/",
-                        "delete remote:Backup/"
-                      ]
-                    },
+        Config Fields:
 
-                IMPORTANT:
-                    A timer is required to execute a Variable.
-                    For a timer to work, it must have the exact same name as the Variable it affects.
+        1. "Run":
+            Controls whether cssync is active.
+            - true  => cssync will execute rclone commands
+            - false => cssync will not execute any commands
 
-                "Variables" may contain multiple keys.
-                Each key is a user-chosen name that represents a group of rclone commands.
+        2. "Variables":
+            Stores named groups of rclone commands.
+            - Each key represents a user-defined preset (e.g., "key1").
+            - The value is an ordered list of rclone commands that run sequentially.
+            Example:
+            "Variables": {
+              "key1": [
+                "sync ~/Pictures remote:Pictures/",
+                "delete remote:Pictures/"
+              ],
+              "key2": [
+                "sync ~/Downloads remote:Backup/"
+              ]
+            }
 
-                For more information about rclone, run the application with --help rclone
+            Important:
+            - Each Variable requires a corresponding Timer with the exact same key name to execute.
+            - Variables can contain multiple keys, each representing a distinct command group.
+            - For rclone help, run the application with --help rclone or visit: https://rclone.org/docs/
 
-            "Timers":
-                Stores a delay time in seconds before executing the matching Variable.
-                1200 in "Timers" equals a 20 minute delay.
-                3600 in "Timers" equals a 1 hour delay.
-                Here is an example on how "Timers" can look like:
-                    "Timers": {
-                      "key1": [
-                        1200
-                      ],
-                      "key2": [
-                        3600
-                      ]
-                    },
+        3. "Timers":
+            Stores delay times (in seconds) before executing a Variable.
+            Example:
+            "Timers": {
+              "key1": [3600], // 1 hour delay
+              "key2": [1200]  // 20 minute delay
+            }
 
-                For a timer to work, it must have the exact same name as the Variable it affects.
-                Otherwise, it will not work. A timer is required to execute a variable.
+            Notes:
+            - Each Timer key must match a Variable key.
+            - Currently, only a single integer value per Timer is supported (array reserved for future expansion).
 
-                Note:
-                    Although timers are arrays internally (for future expansion),
-                    each timer must contain exactly ONE integer value today.
+        Full Config Example:
+            {
+              "Run": true,
+              "Variables": {
+                "key1": [
+                  "sync ~/Pictures remote:Pictures/",
+                  "sync ~/Videos remote:Videos/"
+                ],
+                "key2": [
+                  "sync ~/Documents remote:Backup/"
+                ]
+              },
+              "Timers": {
+                "key1": [3600],
+                "key2": [1200]
+              }
+            }
 
-            Full config example:
-                {
-                  "Run": true,
-                  "Variables": {
-                    "key1": [
-                      "sync ~/Pictures remote:Pictures/",
-                      "sync ~/Videos remote:Videos/"
-                    ],
-                    "key2": [
-                      "sync ~/Documents remote:Backup/"
-                    ]
-                  },
-                  "Timers": {
-                    "key1": [
-                      3600
-                    ],
-                    "key2": [
-                      1200
-                    ]
-                  },
-                }
-
-        How to configure rclone:
-            Open your terminal and enter rclone config.
-            Follow the instructions provided by rclone.
-            If you're unsure how to correctly configure rclone,
-            please read the official rclone documentation for your remote,
-            aka cloud storage provider or watch a YouTube video explaining it.
-
-            For more information about rclone, run the application with --help rclone
-
-            https://rclone.org/docs/
+        Configuring rclone:
+            1. Open a terminal and run `rclone config`.
+            2. Follow the prompts to set up your remotes.
+            3. For detailed guidance, refer to official rclone docs or tutorials:
+               https://rclone.org/docs/
         """;
 
     internal const string HelpRclone = "This option is currently under development! Please try again later.";
