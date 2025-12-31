@@ -19,7 +19,7 @@ internal class ParseInput
                 break;
 
             case "--status" or "-s":
-                if (await ModifyConfig.GetStatus())
+                if (await Json.GetConfigStatus())
                     Console.WriteLine("cssync is currently enabled");
                 else
                     Console.WriteLine("cssync is currently disabled");
@@ -39,14 +39,6 @@ internal class ParseInput
 
     internal static async Task TwoArguments(string flag, string option)
     {
-        // These flags don't accept options
-        if (flag is "--enable" or "-e" or "--disable" or "-d")
-        {
-            Console.WriteLine($"{flag} does not accept options.");
-            return;
-        }
-
-        // Only help flag accepts options
         if (flag is "--help" or "-h")
         {
             switch (option)
