@@ -17,6 +17,9 @@ internal static class Json
     private static readonly string configPath = AppDomain.CurrentDomain.BaseDirectory + "config.json";
     private static DateTime _lastConfigWriteTime = DateTime.MinValue;
 
+    internal static async Task<string> Serialize(Config config)
+        => JsonConvert.SerializeObject(config, Formatting.Indented);
+
     internal static async Task<Config> Deserialize()
     {
         int attempts = 0;
