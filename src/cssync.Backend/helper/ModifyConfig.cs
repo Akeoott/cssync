@@ -1,310 +1,160 @@
 // Copyright (c) Ame (Akeoott) <ame@akeoot.org>. Licensed under the GPLv3 License.
 // See the LICENSE file in the repository root for full license text.
 
+using Newtonsoft.Json.Linq;
+
 namespace cssync.Backend.helper;
 
-public class ModifyConfig
+public static class ModifyConfig
 {
-    /// <summary>
-    /// Helper to validate section and key, returning the list and expected type
-    /// </summary>
-    private static async Task<(bool success, Type expectedType, object? list)> GetSectionList(Config config, string section, string key)
+    private static async Task<(bool success, JToken? section)> GetSection(Config config, string section)
     {
-        switch (section)
+        if (!config.Sections.TryGetValue(section, out JToken? jSection))
         {
-            case "Variables":
-                if (!config.Variables.TryGetValue(key, out List<string>? varList))
-                {
-                    Log.Error("Selected key does not exist in Variables");
-                    return (false, typeof(string), null);
-                }
-                return (true, typeof(string), varList);
-
-            case "Timers":
-                if (!config.Timers.TryGetValue(key, out List<int>? timerList))
-                {
-                    Log.Error("Selected key does not exist in Timers");
-                    return (false, typeof(int), null);
-                }
-                return (true, typeof(int), timerList);
-
-            default:
-                Log.Error("Section '{section}' not found", section);
-                return (false, null!, null);
+            Log.Error("Section '{section}' not found", section);
+            return (false, null);
         }
+        return (true, jSection);
     }
 
-    public static async Task EditValue(string section, string key, int location, object value)
+    public static async Task EditValue(string section, string key, int index, object value)
     {
         var config = await Json.Deserialize();
-        Log.Info("Editing value in config at section: {section}, key: {key}, index: {location}", section, key, location);
-        Log.Debug("value: {value}", value);
+        var (success, jSection) = await GetSection(config, section);
+        if (!success || jSection is null) return;
 
-        try
+        if (value is null)
         {
-            if (value is null)
+            Log.Error("Entered value is null");
+            return;
+        }
+
+        if (jSection[key] is JArray arr)
+        {
+            if (index < 0 || index >= arr.Count)
             {
-                Log.Error("Entered value is null");
+                Log.Error("Index out of range: {index}", index);
                 return;
             }
-
-            var (success, expectedType, listObj) = await GetSectionList(config, section, key);
-            if (!success || listObj is null) return;
-
-            if (expectedType == typeof(string))
-            {
-                if (value is not string newValueStr)
-                {
-                    Log.Error("New value is an incorrect data type: {value}", value.GetType());
-                    return;
-                }
-                var list = (List<string>)listObj;
-                if (location < 0 || location >= list.Count)
-                {
-                    Log.Error("Selected value does not exist at location: {location}", location);
-                    return;
-                }
-                if (list[location] == newValueStr)
-                {
-                    Log.Error("New value is the same as existing one");
-                    return;
-                }
-                list[location] = newValueStr;
-            }
-            else if (expectedType == typeof(int))
-            {
-                if (value is not int newValueInt)
-                {
-                    Log.Error("New value is an incorrect data type: {value}", value.GetType());
-                    return;
-                }
-                var list = (List<int>)listObj;
-                if (location < 0 || location >= list.Count)
-                {
-                    Log.Error("Selected value does not exist at location: {location}", location);
-                    return;
-                }
-                if (list[location] == newValueInt)
-                {
-                    Log.Error("New value is the same as existing one");
-                    return;
-                }
-                list[location] = newValueInt;
-            }
-
-            await Json.WriteConfig(config);
-            Log.Info("Successfully edited value");
+            arr[index] = JToken.FromObject(value);
         }
-        catch (Exception ex)
+        else
         {
-            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
+            Log.Error("Key '{key}' does not exist or is not an array", key);
+            return;
         }
+
+        await Json.WriteConfig(config);
+        Log.Info("Edited value successfully");
     }
 
     public static async Task AppendValue(string section, string key, object value)
     {
         var config = await Json.Deserialize();
-        Log.Info("Appending value in config at: {section}, {key}", section, key);
-        Log.Debug("value: {value}", value);
+        var (success, jSection) = await GetSection(config, section);
+        if (!success || jSection is null) return;
 
-        try
+        if (value is null)
         {
-            if (value is null)
-            {
-                Log.Error("Entered value is null");
-                return;
-            }
-
-            var (success, expectedType, listObj) = await GetSectionList(config, section, key);
-            if (!success || listObj is null) return;
-
-            if (expectedType == typeof(string))
-            {
-                var list = (List<string>)listObj;
-                if (value is string strVal) list.Add(strVal);
-                else if (value is List<string> strList) list.AddRange(strList);
-                else
-                {
-                    Log.Error("New value is an incorrect data type: {value}", value.GetType());
-                    return;
-                }
-            }
-            else if (expectedType == typeof(int))
-            {
-                var list = (List<int>)listObj;
-                if (value is int intVal) list.Add(intVal);
-                else if (value is List<int> intList) list.AddRange(intList);
-                else
-                {
-                    Log.Error("New value is an incorrect data type: {value}", value.GetType());
-                    return;
-                }
-            }
-
-            await Json.WriteConfig(config);
-            Log.Info("Successfully appended value");
+            Log.Error("Entered value is null");
+            return;
         }
-        catch (Exception ex)
+
+        if (jSection[key] == null)
         {
-            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
+            jSection[key] = new JArray();
         }
+
+        if (jSection[key] is JArray arr)
+        {
+            switch (value)
+            {
+                case IEnumerable<string> strList:
+                    foreach (var s in strList) arr.Add(s);
+                    break;
+                case IEnumerable<int> intList:
+                    foreach (var i in intList) arr.Add(i);
+                    break;
+                default:
+                    arr.Add(JToken.FromObject(value));
+                    break;
+            }
+        }
+        else
+        {
+            Log.Error("Key '{key}' is not an array", key);
+            return;
+        }
+
+        await Json.WriteConfig(config);
+        Log.Info("Appended value successfully");
     }
 
-    public static async Task RemoveValue(string section, string key, int location)
+    public static async Task RemoveValue(string section, string key, int index)
     {
         var config = await Json.Deserialize();
-        Log.Info("Removing value in config at section: {section}, key: {key}, index: {location}", section, key, location);
+        var (success, jSection) = await GetSection(config, section);
+        if (!success || jSection is null) return;
 
-        try
+        if (jSection[key] is JArray arr)
         {
-            var (success, expectedType, listObj) = await GetSectionList(config, section, key);
-            if (!success || listObj is null) return;
-
-            if (expectedType == typeof(string))
+            if (index < 0 || index >= arr.Count)
             {
-                var list = (List<string>)listObj;
-                if (location < 0 || location >= list.Count)
-                {
-                    Log.Error("Selected value does not exist at location: {location}", location);
-                    return;
-                }
-                list.RemoveAt(location);
+                Log.Error("Index out of range: {index}", index);
+                return;
             }
-            else if (expectedType == typeof(int))
-            {
-                var list = (List<int>)listObj;
-                if (location < 0 || location >= list.Count)
-                {
-                    Log.Error("Selected value does not exist at location: {location}", location);
-                    return;
-                }
-                list.RemoveAt(location);
-            }
-
-            await Json.WriteConfig(config);
-            Log.Info("Successfully removed value");
+            arr.RemoveAt(index);
         }
-        catch (Exception ex)
+        else
         {
-            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
+            Log.Error("Key '{key}' does not exist or is not an array", key);
+            return;
         }
+
+        await Json.WriteConfig(config);
+        Log.Info("Removed value successfully");
     }
 
     public static async Task AppendKey(string section, string key)
     {
         var config = await Json.Deserialize();
-        Log.Info("Appending key in config at section: {section}, key: {key}", section, key);
+        var (success, jSection) = await GetSection(config, section);
+        if (!success || jSection is null) return;
 
-        try
+        if (jSection[key] != null)
         {
-            switch (section)
-            {
-                case "Variables":
-                    if (config.Variables.ContainsKey(key))
-                    {
-                        Log.Error("Selected key already exists");
-                        return;
-                    }
-                    config.Variables[key] = new List<string>();
-                    break;
-
-                case "Timer":
-                    if (config.Timers.ContainsKey(key))
-                    {
-                        Log.Error("Selected key already exists");
-                        return;
-                    }
-                    config.Timers[key] = new List<int>();
-                    break;
-
-                default:
-                    Log.Error("Section not found");
-                    return;
-            }
-
-            await Json.WriteConfig(config);
-            Log.Info("Successfully appended key");
+            Log.Error("Key '{key}' already exists", key);
+            return;
         }
-        catch (Exception ex)
-        {
-            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
-        }
+
+        jSection[key] = new JArray();
+        await Json.WriteConfig(config);
+        Log.Info("Appended key successfully");
     }
 
     public static async Task RemoveKey(string section, string key)
     {
         var config = await Json.Deserialize();
-        Log.Info("Removing key in config at section: {section}, key: {key}", section, key);
+        var (success, jSection) = await GetSection(config, section);
+        if (!success || jSection is null) return;
 
-        try
+        if (!((JObject)jSection).Remove(key))
         {
-            bool removed = section switch
-            {
-                "Variables" => config.Variables.Remove(key),
-                "Timer" => config.Timers.Remove(key),
-                _ => throw new InvalidOperationException($"Section '{section}' not found")
-            };
-
-            if (!removed)
-            {
-                Log.Error("Selected key does not exist");
-                return;
-            }
-
-            await Json.WriteConfig(config);
-            Log.Info("Successfully removed key");
+            Log.Error("Key '{key}' does not exist", key);
+            return;
         }
-        catch (Exception ex)
-        {
-            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
-        }
+
+        await Json.WriteConfig(config);
+        Log.Info("Removed key successfully");
     }
 
-    /// <summary>
-    /// Enable or disable cssync from performing rclone operations automatically
-    /// </summary>
-    /// <param name="shouldEnable">true to enable cssync and false to disable cssync</param>
-    /// <returns></returns>
-    public static async Task EnableDisableCssync(bool shouldEnable)
+    public static async Task EnableDisableCssync(bool enable)
     {
         var config = await Json.Deserialize();
-
-        try
-        {
-            if (shouldEnable)
-            {
-                Log.Debug("Enabling cssync");
-                config.Run = true;
-                await Json.WriteConfig(config);
-                Log.Info("Successfully enabled cssync to perform rclone operations");
-            }
-            else
-            {
-                Log.Debug("Disabling cssync");
-                config.Run = false;
-                await Json.WriteConfig(config);
-                Log.Info("Successfully disabled cssync from performing rclone operations");
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
-        }
-    }
-
-    public static async Task<bool> GetStatus()
-    {
-        var config = await Json.Deserialize();
-        Log.Debug("Getting cssync status");
-
-        try
-        {
-            return config.Run;
-        }
-        catch (Exception ex)
-        {
-            Log.Error("Something went wrong. {ex}: {ex.Message}", ex, ex.Message);
-            return false;
-        }
+        config.Run = enable;
+        await Json.WriteConfig(config);
+        Log.Info(enable
+            ? "Enabled cssync"
+            : "Disabled cssync");
     }
 }
