@@ -28,5 +28,5 @@ This project is separated in to parts.
 | Handles all the logic | Handle user input           |
 | Allow cli access      | Provide graphical interface |
 
-> [!INFO]
+> [!NOTE]
 > The backend is currently in development and the GUI will come in the future.
