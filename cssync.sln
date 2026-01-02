@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cssync.Backend", "src\cssync.Backend\cssync.Backend.csproj", "{7B696CFB-B168-4EF0-9152-9F12A7728080}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cssync.Cli", "src\cssync.Cli\cssync.Cli.csproj", "{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,11 +31,24 @@ Global
 		{7B696CFB-B168-4EF0-9152-9F12A7728080}.Release|x64.Build.0 = Release|Any CPU
 		{7B696CFB-B168-4EF0-9152-9F12A7728080}.Release|x86.ActiveCfg = Release|Any CPU
 		{7B696CFB-B168-4EF0-9152-9F12A7728080}.Release|x86.Build.0 = Release|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Debug|x64.Build.0 = Debug|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Debug|x86.Build.0 = Debug|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Release|x64.ActiveCfg = Release|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Release|x64.Build.0 = Release|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Release|x86.ActiveCfg = Release|Any CPU
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7B696CFB-B168-4EF0-9152-9F12A7728080} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{FAB0E13E-20E0-4AD6-8F44-F79D952DFD1A} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

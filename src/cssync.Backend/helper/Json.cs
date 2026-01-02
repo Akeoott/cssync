@@ -1,25 +1,44 @@
 // Copyright (c) Ame (Akeoott) <ame@akeoot.org>. Licensed under the GPLv3 License.
 // See the LICENSE file in the repository root for full license text.
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace cssync.Backend.helper;
 
 internal class Config
 {
-    public bool Run { get; set; } = false;
-    public JObject Sections { get; set; } = new JObject();
+    public required Dictionary<string, List<string>> Variables { get; set; }
+    public required Dictionary<string, List<int>> Timer { get; set; }
 }
 
-internal static class Json
+internal class Json
 {
-    private static readonly string configPath = AppDomain.CurrentDomain.BaseDirectory + "config.json";
-    private static DateTime _lastConfigWriteTime = DateTime.MinValue;
+    internal static readonly string configPath = AppDomain.CurrentDomain.BaseDirectory + "config.json";
+    internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
 
-    internal static async Task<string> Serialize(Config config)
-        => JsonConvert.SerializeObject(config, Formatting.Indented);
+    /// <summary>
+    /// Get current serialized configuration of cssync.
+    /// </summary>
+    /// <returns>Serialized config</returns>
+    public static async Task<string> GetSerializedConfig()
+        => Serialize(await Deserialize());
 
+    /// <summary>
+    /// Serializes input from the Config class
+    /// </summary>
+    /// <param name="input">json config</param>
+    /// <returns>string containing serialized config</returns>
+    internal static string Serialize(Config input)
+    {
+        Log.Debug("Serializing config");
+        return JsonSerializer.Serialize(input, options);
+    }
+
+    /// <summary>
+    /// Deserializes config located next to application.
+    /// Generates config if not found.
+    /// </summary>
+    /// <returns>Config of application</returns>
     internal static async Task<Config> Deserialize()
     {
         int attempts = 0;
@@ -30,38 +49,27 @@ internal static class Json
             {
                 await GenConfig();
             }
-
             try
             {
                 Log.Debug("Deserializing config");
+
                 string json = await File.ReadAllTextAsync(configPath);
-                return JsonConvert.DeserializeObject<Config>(json) ?? new Config();
+                return JsonSerializer.Deserialize<Config>(json)
+                    ?? throw new InvalidDataException("Output is null or empty");
             }
-            catch (Exception ex) when (ex is FileNotFoundException || ex is JsonException)
+            catch (Exception ex) when (ex is FileNotFoundException || ex is JsonException || ex is InvalidDataException)
             {
                 attempts++;
                 Log.Critical("Loading config failed (attempt {attempts}/3). {ex}: {ex.Message}", attempts, ex, ex.Message);
                 await Task.Delay(100);
             }
         }
-
-        throw new InvalidOperationException($"Failed to load config after {attempts} attempts");
+        throw new InvalidOperationException($"Something went wrong. Failed to get config after {attempts} attempts");
     }
 
-    internal static async Task WriteConfig(Config config)
-    {
-        try
-        {
-            string json = JsonConvert.SerializeObject(config, Formatting.Indented);
-            await File.WriteAllTextAsync(configPath, json);
-            Log.Debug("Wrote config to disk");
-        }
-        catch (Exception ex)
-        {
-            Log.Critical("Failed to write config. {ex}: {ex.Message}", ex, ex.Message);
-        }
-    }
-
+    /// <summary>
+    /// Generates a json file in application directory if no file was found.
+    /// </summary>
     internal static async Task GenConfig()
     {
         if (File.Exists(configPath))
@@ -69,27 +77,33 @@ internal static class Json
             Log.Info("Config exists");
             return;
         }
-
-        Log.Warn("Config doesn't exist. Generating config");
-        var config = new Config
+        else
         {
-            Sections = new JObject
+            Log.Warn("Config doesn't exist. Generating config");
+            Config config = new()
             {
-                ["Variables"] = new JObject(),
-                ["Timers"] = new JObject()
-            }
-        };
-        await WriteConfig(config);
-        Log.Info("Successfully generated config");
+                Variables = [],
+                Timer = [],
+            };
+            await WriteConfig(config);
+        }
     }
 
-    internal static async Task<bool> GetConfigStatus()
+    /// <summary>
+    /// Writes config to file asynchronously
+    /// </summary>
+    /// <param name="config">Config to write</param>
+    internal static async Task WriteConfig(Config config)
     {
-        DateTime currentWriteTime = File.GetLastWriteTimeUtc(configPath);
-        if (currentWriteTime == _lastConfigWriteTime) return false;
-        _lastConfigWriteTime = currentWriteTime;
-
-        var config = await Deserialize();
-        return config.Run;
+        try
+        {
+            string jsonString = Serialize(config);
+            await File.WriteAllTextAsync(configPath, jsonString);
+            Log.Debug("Wrote to config");
+        }
+        catch (Exception ex)
+        {
+            Log.Critical("Failed to write config. {ex}: {ex.Message}", ex, ex.Message);
+        }
     }
 }
