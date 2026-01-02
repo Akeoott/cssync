@@ -4,10 +4,12 @@
     // cSpell
     "cSpell.words": [
         "cssync",
+        "initializers",
         "isatty",
         "konsole",
         "libc",
-        "rclone"
+        "rclone",
+        "resx"
     ],
     "cSpell.caseSensitive": true,
     "cSpell.autoFormatConfigFile": true,

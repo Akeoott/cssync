@@ -1,32 +1,44 @@
 // Copyright (c) Ame (Akeoott) <ame@akeoot.org>. Licensed under the GPLv3 License.
 // See the LICENSE file in the repository root for full license text.
 
+using Newtonsoft.Json.Linq;
+
 using cssync.Backend.helper;
 
 namespace cssync.Backend;
 
+/// <summary>
+/// Reads config and acts on the data it contains
+/// </summary>
 public static class Cssync
 {
-    internal const string cssyncOptions = """
-        Usage:
-            > cssync [option] [scope] [args]
-        Options:
-            > cssync help    |  See all options
-            > cssync list    |  Display entire json config
-            > cssync run     |  Run a variable
-            > cssync edit    |  Edit a value in config
-            > cssync append  |  Append a value to config
-            > cssync remove  |  Remove a value from config
-        Scopes:
-            help             |  See usage and expanded info for each option
-            variables        |  Configure your Variables (rclone command presets)
-            timer            |  Configure the Timer (when commands periodically execute)
-        """;
-
-    public static async Task<string> RunCssync(string option = "help", string? scope = null, params string[] args)
+    public static async Task RunCssync()
     {
-        string warningMsg = "Cssync has not been implemented yet! Please check the main branch out for the latest updates.";
-        Log.Warn(warningMsg);
-        return warningMsg;
+        if (!await Json.GetConfigStatus())
+        {
+            Log.Info("cssync is currently disabled by config");
+        }
+
+        var cts = new CancellationTokenSource();
+        var token = cts.Token;
+
+        Task task = Task.Run(() => CssyncLoop(token), token);
+
+        while (true)
+        {
+            if (!await Json.GetConfigStatus())
+            {
+                cts.Cancel();
+                await Task.WhenAll(task);
+                Log.Info("cssync was stopped by config");
+                return;
+            }
+            await Task.Delay(5000);
+        }
+    }
+
+    private static async Task CssyncLoop(CancellationToken token)
+    {
+        // TODO
     }
 }
