@@ -38,7 +38,3 @@
 - [ ] Documentation updated if required
 - [ ] No breaking changes introduced
 - [ ] Tests pass (if applicable)
-
----
-
-**Note**: Keep changes focused and minimal. Don't add unrelated "improvements".
