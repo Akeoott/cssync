@@ -5,6 +5,28 @@ namespace cssync.Backend.helper;
 
 internal class ParseInput
 {
+    internal static async Task Start(string[] args)
+    {
+        switch (args.Length)
+        {
+            case 0:
+                NoArguments();
+                break;
+
+            case 1:
+                await SingleArgument(args[0]);
+                break;
+
+            case 2:
+                await TwoArguments(args[0], args[1]);
+                break;
+
+            default:
+                Console.WriteLine($"Too many arguments. Use --help for usage.");
+                break;
+        }
+    }
+
     internal static void NoArguments()
     {
         Console.WriteLine("Use --help for available options.");

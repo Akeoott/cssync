@@ -41,24 +41,8 @@ internal class MainBackend
         }
 
         Log.Debug("Current process: {ProcessName}", Process.GetCurrentProcess());
-        switch (args.Length)
-        {
-            case 0:
-                ParseInput.NoArguments();
-                break;
+        await ParseInput.Start(args);
 
-            case 1:
-                await ParseInput.SingleArgument(args[0]);
-                break;
-
-            case 2:
-                await ParseInput.TwoArguments(args[0], args[1]);
-                break;
-
-            default:
-                Console.WriteLine($"Too many arguments. Use --help for usage.");
-                break;
-        }
 
         // await Cssync.RunCssync();
     }
