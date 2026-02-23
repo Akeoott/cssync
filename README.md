@@ -23,10 +23,10 @@ Aiming for cross platform compatibility and support for various cloud storage se
 
 This project is separated in to parts.
 
-| cssync.Backend        | cssync.Gui                  |
-|:---------------------:|:---------------------------:|
-| Handles all the logic | Handle user input           |
-| Allow cli access      | Provide graphical interface |
+| cssync.Core             | cssync.Web                  |
+|:-----------------------:|:---------------------------:|
+| Handles all the logic   | Handle user input           |
+| Class lib for other use | Provide graphical interface |
 
 > [!NOTE]
-> The backend is currently in development and the GUI will come in the future.
+> Core and Web are currently in a massive rewrite.

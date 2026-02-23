@@ -1,28 +1,33 @@
-# top-most EditorConfig file
 root = true
 
+# ================
 # General Settings
 
 [*]
+# Core settings
 charset = utf-8
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# Default Indentation
 indent_style = space
 indent_size = 4
 
+# ==============================
 # C# (.NET SDK) Styling Settings
 
 [*.cs]
-file_header_template = Copyright (c) Ame (Akeoott) <ame@akeoot.org>. Licensed under the GPLv3 License.\nSee the LICENSE file in the repository root for full license text.
-
+# File Header
+file_header_template = Copyright (c) 2025-2026 Ame (Akeoot/Akeoott) <akeoot@pm.me>. Licensed under the GPLv3 License.\nSee the LICENSE file in the repository root for full license text.
 dotnet_diagnostic.IDE0073.severity = error
-csharp_style_namespace_declaration = file_scoped:suggestion
 
+# using
 dotnet_separate_import_directive_groups = true
 csharp_style_using_directive_placement = outside_namespace:suggestion
+csharp_style_namespace_declaration = file_scoped:suggestion
 
+# Code Block
 csharp_new_line_before_open_brace = all
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
@@ -31,20 +36,21 @@ csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
 csharp_preserve_single_line_blocks = true
 
+# xml based files
+[*.{xml,axaml,slnx,csproj}]
+indent_style = space
+indent_size = 2
+
+# =======================
 # Python Styling Settings
 
 [*.py]
 indent_style = space
 indent_size = 4
 
+# =======================
 # Markdown and Text Files
 
 [*.{md,txt}]
 trim_trailing_whitespace = true
 insert_final_newline = false
-
-# Indent style for other files
-
-[*.{csproj,resx,xml,json,jsonc}]
-indent_style = space
-indent_size = 2

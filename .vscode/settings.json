@@ -1,6 +1,6 @@
 {
     // File solution
-    "dotnet.defaultSolution": "cssync.sln",
+    "dotnet.defaultSolution": "cssync.slnx",
     // cSpell
     "cSpell.words": [
         "cssync",
