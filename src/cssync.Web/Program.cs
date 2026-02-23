@@ -1,6 +1,8 @@
 // Copyright (c) 2025-2026 Ame (Akeoot/Akeoott) <akeoot@pm.me>. Licensed under the GPLv3 License.
 // See the LICENSE file in the repository root for full license text.
 
+using cssync.Core;
+
 internal class Program
 {
     private static void Main(string[] args)
@@ -9,6 +11,15 @@ internal class Program
 
         // Add services to the container.
         builder.Services.AddRazorPages();
+
+        // Dependency Injection
+        // builder.Services.AddSingleton<INumberCounter, NumberCounter>();
+
+        // Singleton = one instance for the lifetime of the application
+        // builder.Services.AddSingleton<>();
+
+        // Scoped = new instance each time
+        // builder.Services.AddScoped<>();
 
         var app = builder.Build();
 
