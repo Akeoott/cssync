@@ -1,6 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/cssync.Core/cssync.Core.csproj" />
-    <Project Path="src/cssync.Web/cssync.Web.csproj" />
-  </Folder>
-</Solution>
