@@ -7,12 +7,19 @@ root = true
 # Core settings
 charset = utf-8
 end_of_line = lf
-insert_final_newline = true
 trim_trailing_whitespace = true
 
 # Default Indentation
 indent_style = space
 indent_size = 4
+
+# ====================
+# Web Styling Settings
+
+[*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,vue}]
+indent_size = 4
+[*.{css,scss,sass,less,styl}]
+indent_size = 2
 
 # ==============================
 # C# (.NET SDK) Styling Settings
@@ -36,8 +43,11 @@ csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
 csharp_preserve_single_line_blocks = true
 
+insert_final_newline = true
+
 # xml based files
 [*.{xml,axaml,slnx,csproj}]
+insert_final_newline = true
 indent_style = space
 indent_size = 2
 
@@ -45,6 +55,7 @@ indent_size = 2
 # Python Styling Settings
 
 [*.py]
+insert_final_newline = true
 indent_style = space
 indent_size = 4
 
