@@ -1,0 +1,50 @@
+.container {
+  @apply max-w-300 mx-auto px-6 py-0;
+}
+
+@layer components {
+  .profile-img img {
+    @apply flex w-37.5 h-37.5 text-bg-900 bg-primary border-primary border-4 rounded-full;
+    @apply shadow-element-primary animate-float;
+  }
+
+  .half-underline::after {
+    @apply content-[''] absolute w-[50%] h-0.75 left-0 -bottom-1.25 bg-primary rounded-[3px];
+  }
+
+  .card {
+    @apply p-8 bg-bg-700 rounded-[15px] border-primary border-l-4;
+  }
+
+  .gradient {
+    background: var(--gradient-primary);
+    @apply bg-clip-text text-transparent;
+  }
+
+  .gradient-divider {
+    @apply my-8 h-0.75 bg-linear-to-r from-transparent via-primary to-transparent;
+  }
+}
+
+/* hover */
+@layer components {
+  .hover-border {
+    @apply border border-transparent transition-all ease-out duration-500;
+    @apply hover:border-primary;
+  }
+
+  .hover-grow {
+    @apply transition-all ease-out duration-500;
+    @apply hover:transform-[scale(1.05)];
+  }
+
+  .hover-up {
+    @apply transition-all ease-out duration-500;
+    @apply hover:transform-[translateY(-4px)];
+  }
+
+  .hover-shadow {
+    @apply shadow-element-secondary;
+    @apply hover:shadow-element-secondary-hover;
+  }
+}
